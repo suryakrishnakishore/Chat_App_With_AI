@@ -102,18 +102,18 @@
 //   );
 // }
 
-"use client";
-
-import { useTheme } from "next-themes";
+import LeftPanel from "@/components/home/left-panel";
+import RightPanel from "@/components/home/right-panel";
 
 export default function Home() {
-  const { setTheme } = useTheme();
 
   return (
-    <main className="flex flex-col min-h-screen items-center justify-evenly p-4">
-      <button onClick={() => setTheme("light")}>Light</button>
-      <button onClick={() => setTheme("dark")}>Dark</button>
-      <button onClick={() => setTheme("system")}>System</button>
+    <main className="m-5">
+      <div className="flex overflow-y-hidden h-[calc(100vh-40px)] max-w-[1700px] mx-auto bg-[hsl(var(--left-panel))]">
+        <div className="fixed top-0 left-0 w-full h-36 bg-[hsl(var(--green-primary))] dark:bg-transparent -z-30"></div>
+        <LeftPanel />
+        <RightPanel />
+      </div>
     </main>
   )
 }
