@@ -6,9 +6,10 @@ import { CgDarkMode } from "react-icons/cg";
 import ThemeSwitch from '../theme-switch';
 import { ListFilter, LogOut, MessageSquareDiff, Search, User } from 'lucide-react';
 import { Input } from '../ui/input';
+import Conversations from '../conversations';
+import { conversations } from '@/dummyData/db';
 
 const LeftPanel = () => {
-  const conversations = [];
 
   return (
     <div className='flex flex-col h-full border-gray-600 w-1/4 border-r'>
@@ -36,7 +37,9 @@ const LeftPanel = () => {
       </div>
 
       <div className='overflow-auto flex flex-col max-h-[89%] gap-0 my-3'>
-          
+            {conversations?.map((conversation) => (
+              <Conversations key={conversation._id} conversation={conversation}/>
+            ))}
           {conversations?.length === 0 && (
             <div>
               <p className='text-center text-gray-500 text-sm mt-2'>No Conversations</p>
