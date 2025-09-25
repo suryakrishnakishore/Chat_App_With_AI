@@ -9,6 +9,8 @@ import { Input } from '../ui/input';
 import Conversations from '../conversations';
 import { conversations } from '@/dummyData/db';
 
+
+
 const LeftPanel = () => {
 
   return (
@@ -37,7 +39,7 @@ const LeftPanel = () => {
       </div>
 
       <div className='overflow-auto flex flex-col max-h-[89%] gap-0 my-3'>
-            {conversations?.map((conversation) => (
+            {conversations?.map((conversation: any) => (
               <Conversations key={conversation._id} conversation={conversation}/>
             ))}
           {conversations?.length === 0 && (

@@ -1,4 +1,16 @@
-export const conversations = [
+type Conversation = {
+  _id: number | string;
+  isOnline: boolean;
+  groupImage: string | null;
+  groupName?: string | null;
+  sender: string;
+  admin?: string | null;
+  lastMessage: { _id: number | string,content: string, sender: string, messageType: string  };
+  _creationTime: number;
+  participants: string[];
+};
+
+export const conversations: Conversation[] = [
 	{
 		_id: "1",
 		admin: "user1",

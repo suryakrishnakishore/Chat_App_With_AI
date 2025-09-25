@@ -9,11 +9,12 @@ type Conversation = {
   _id: number | string;
   isOnline: boolean;
   groupImage: string;
-  groupName?: string;
+  groupName?: string | null;
   sender: string;
-  admin?: boolean;
-  lastMessage: { content: string, sender: string, messageType: string  };
+  admin?: string | null;
+  lastMessage: { _id: number | string,content: string, sender: string, messageType: string  };
   _creationTime: number;
+  participants: string[];
 };
 
 interface ConversationsProps {
