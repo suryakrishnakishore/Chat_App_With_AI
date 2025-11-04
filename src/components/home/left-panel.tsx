@@ -10,13 +10,15 @@ import { ListFilter, LogOut, MessageSquareDiff, Search, User } from 'lucide-reac
 import { Input } from '../ui/input';
 import Conversations from '../conversations';
 import { conversations } from '@/dummyData/db';
-import { usePanelStore } from '@/store/chat-store';
+import { useConversationStore, usePanelStore } from '@/store/chat-store';
 
 const LeftPanel = () => {
     const { panel, setPanel } = usePanelStore();
+    const { selectedConversation, setSelectedConversation } = useConversationStore();
 
-    const handleConversationClick = () => {
+    const handleConversationClick = (conversation: any): void => {
       setPanel(true);
+      setSelectedConversation(conversation);
     }
 
   return (
@@ -46,7 +48,7 @@ const LeftPanel = () => {
 
       <div  className='overflow-auto flex flex-col max-h-[89%] gap-0 my-3'>
             {conversations?.map((conversation: any) => (
-              <div onClick={handleConversationClick}>
+              <div onClick={() => handleConversationClick(conversation)}>
                 <Conversations  key={conversation._id} conversation={conversation}/>
               </div>
               
