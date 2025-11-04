@@ -22,3 +22,13 @@ export const useConversationStore = create<ConversationStore>((set) => ({
     setSelectedConversation: (conversation) => set({ selectedConversation: conversation })
 }));
 
+type PanelStore = {
+  panel: boolean;
+  setPanel: (p: boolean) => void;
+}
+
+export const usePanelStore = create<PanelStore> ((set) => ({
+  panel: false,
+  setPanel: (p) => set({ panel: p})
+}));
+

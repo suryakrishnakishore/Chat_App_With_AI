@@ -1,3 +1,5 @@
+"use client";
+
 import Image from 'next/image'
 import React from 'react'
 import UserImage from '../../../public/placeholder.png'
@@ -8,13 +10,17 @@ import { ListFilter, LogOut, MessageSquareDiff, Search, User } from 'lucide-reac
 import { Input } from '../ui/input';
 import Conversations from '../conversations';
 import { conversations } from '@/dummyData/db';
-
-
+import { usePanelStore } from '@/store/chat-store';
 
 const LeftPanel = () => {
+    const { panel, setPanel } = usePanelStore();
+
+    const handleConversationClick = () => {
+      setPanel(true);
+    }
 
   return (
-    <div className='flex flex-col h-full border-gray-600 w-1/4 border-r'>
+    <div className='flex flex-col h-full border-gray-600 w-1/3 border-r'>
       <div className='sticky top-0 bg-[hsl(var(--left-panel))] z-10'>
         <div className='flex bg-[hsl(var(--gray-primary))] items-center justify-between'>
           {/* <Image src={UserImage} alt="User Avatar" width={40} height={40} className='rouunded-full m-2'/>
@@ -38,9 +44,12 @@ const LeftPanel = () => {
         </div>
       </div>
 
-      <div className='overflow-auto flex flex-col max-h-[89%] gap-0 my-3'>
+      <div  className='overflow-auto flex flex-col max-h-[89%] gap-0 my-3'>
             {conversations?.map((conversation: any) => (
-              <Conversations key={conversation._id} conversation={conversation}/>
+              <div onClick={handleConversationClick}>
+                <Conversations  key={conversation._id} conversation={conversation}/>
+              </div>
+              
             ))}
           {conversations?.length === 0 && (
             <div>

@@ -4,6 +4,7 @@ import UserImage from "../../public/placeholder.png"
 import { formatDate } from '@/lib/utils'
 import { ImageIcon, VideoIcon } from 'lucide-react';
 import { MessageSeenSvg } from '@/lib/svgs';
+import { useConversationStore, usePanelStore } from '@/store/chat-store';
 
 type Conversation = {
   _id: number | string;
@@ -25,8 +26,10 @@ const Conversations: React.FC<ConversationsProps> = ({ conversation }) => {
   const lastMessage: { content: string, sender: string, messageType: string  } = conversation?.lastMessage;
   const lastMessageType: string = conversation?.lastMessage?.messageType;
   const me: string = "user1";
+  const { panel } = usePanelStore();
+  const { selectedConversation } = useConversationStore();
   return (
-    <div className="flex items-center gap-3 px-4 py-3 rounded-lg border border-[hsl(var(--gray-primary))] bg-[hsl(var(--container))] hover:bg-[hsl(var(--gray-secondary))] transition-colors cursor-pointer shadow-sm mb-2">
+    <div className={`flex items-center gap-3 px-4 py-3 rounded-lg border border-[hsl(var(--gray-primary))] bg-[hsl(var(--container))] hover:bg-[hsl(var(--gray-secondary))] transition-colors cursor-pointer shadow-sm mb-2`}>
       <div>
         <Avatar className="w-12 h-12 overflow-visible relative">
           {conversation.isOnline && (
