@@ -1,0 +1,106 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "name",
+      "email"
+    ],
+    "properties": {
+      "name": {
+        "bsonType": "string",
+        "description": "Name must be a string."
+      },
+      "email": {
+        "bsonType": "string",
+        "pattern": "^.+@.+\\..+$",
+        "description": "Email must be valid."
+      },
+      "about": {
+        "bsonType": "string",
+        "maxLength": 100,
+        "description": "About must be a string with length less than 100 characters."
+      },
+      "roles": {
+        "bsonType": "array",
+        "items": {
+          "bsonType": "string",
+          "description": "Roles must be an array of strings."
+        }
+      },
+      "profileImage": {
+        "bsonType": "string",
+        "description": "Profile image path must be a string."
+      },
+      "isOnline": {
+        "bsonType": "bool",
+        "description": "Is Online must be a boolean type."
+      },
+      "blockedUsers": {
+        "bsonType": "array",
+        "items": {
+          "bsonType": "string",
+          "description": "Blocked Users must be an array of strings i.e., users."
+        }
+      },
+      "settings": {
+        "bsonType": "object",
+        "properties": {
+          "theme": {
+            "enum": [
+              "light",
+              "dark",
+              "system"
+            ]
+          },
+          "language": {
+            "bsonType": "string"
+          },
+          "fontSize": {
+            "enum": [
+              "small",
+              "medium",
+              "large"
+            ]
+          },
+          "privacy": {
+            "bsonType": "object",
+            "properties": {
+              "lastSeen": {
+                "enum": [
+                  0,
+                  1,
+                  2
+                ]
+              },
+              "profilePhoto": {
+                "enum": [
+                  0,
+                  1,
+                  2
+                ]
+              },
+              "readReciepts": {
+                "bsonType": "bool"
+              },
+              "aboutVisibility": {
+                "enum": [
+                  0,
+                  1,
+                  2
+                ]
+              }
+            }
+          }
+        }
+      },
+      "lastSeen": {
+        "bsonType": "date",
+        "description": "Last seen must be a valid date."
+      },
+      "joinedAt": {
+        "bsonType": "date",
+        "description": "Joined At must be a valid date."
+      }
+    }
+  }
+}
