@@ -3,47 +3,67 @@
     "bsonType": "object",
     "required": [
       "name",
-      "email"
+      "email",
+      "joinedAt"
     ],
     "properties": {
       "name": {
         "bsonType": "string",
-        "description": "Name must be a string."
+        "description": "Full name of the user."
       },
       "email": {
         "bsonType": "string",
         "pattern": "^.+@.+\\..+$",
         "description": "Email must be valid."
       },
+      "username": {
+        "bsonType": [
+          "string",
+          "null"
+        ],
+        "description": "Unique username for tagging/mentions."
+      },
+      "phoneNumber": {
+        "bsonType": [
+          "string",
+          "null"
+        ],
+        "description": "Phone number of the user (if phone login is used)."
+      },
       "about": {
-        "bsonType": "string",
-        "maxLength": 100,
-        "description": "About must be a string with length less than 100 characters."
+        "bsonType": [
+          "string",
+          "null"
+        ],
+        "maxLength": 100
       },
       "roles": {
         "bsonType": "array",
         "items": {
-          "bsonType": "string",
-          "description": "Roles must be an array of strings."
+          "bsonType": "string"
         }
       },
       "profileImage": {
-        "bsonType": "string",
-        "description": "Profile image path must be a string."
+        "bsonType": [
+          "string",
+          "null"
+        ]
       },
       "isOnline": {
-        "bsonType": "bool",
-        "description": "Is Online must be a boolean type."
+        "bsonType": "bool"
       },
       "blockedUsers": {
         "bsonType": "array",
         "items": {
-          "bsonType": "string",
-          "description": "Blocked Users must be an array of strings i.e., users."
-        }
+          "bsonType": "objectId"
+        },
+        "description": "Users blocked by this user."
       },
       "settings": {
-        "bsonType": "object",
+        "bsonType": [
+          "object",
+          "null"
+        ],
         "properties": {
           "theme": {
             "enum": [
@@ -63,30 +83,33 @@
             ]
           },
           "privacy": {
-            "bsonType": "object",
+            "bsonType": [
+              "object",
+              "null"
+            ],
             "properties": {
               "lastSeen": {
                 "enum": [
-                  0,
-                  1,
-                  2
+                  "everyone",
+                  "contacts",
+                  "nobody"
                 ]
               },
               "profilePhoto": {
                 "enum": [
-                  0,
-                  1,
-                  2
+                  "everyone",
+                  "contacts",
+                  "nobody"
                 ]
               },
-              "readReciepts": {
+              "readReceipts": {
                 "bsonType": "bool"
               },
               "aboutVisibility": {
                 "enum": [
-                  0,
-                  1,
-                  2
+                  "everyone",
+                  "contacts",
+                  "nobody"
                 ]
               }
             }
@@ -94,12 +117,13 @@
         }
       },
       "lastSeen": {
-        "bsonType": "date",
-        "description": "Last seen must be a valid date."
+        "bsonType": [
+          "date",
+          "null"
+        ]
       },
       "joinedAt": {
-        "bsonType": "date",
-        "description": "Joined At must be a valid date."
+        "bsonType": "date"
       }
     }
   }
