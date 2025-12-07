@@ -1,0 +1,143 @@
+{
+    "$jsonSchema": {
+        "bsonType": "object",
+        "required": [
+            "chatId",
+            "senderId",
+            "messageType",
+            "timestamp"
+        ],
+        "properties": {
+            "chatId": {
+                "bsonType": "string",
+                "description": "Unique ID of the chat this message belongs to."
+            },
+            "senderId": {
+                "bsonType": "string",
+                "description": "Sender ID must be a string."
+            },
+            "receiverId": {
+                "bsonType": [
+                    "string",
+                    "null"
+                ],
+                "description": "Receiver ID must be a string."
+            },
+            "messageType": {
+                "enum": [
+                    "text",
+                    "image",
+                    "video",
+                    "audio",
+                    "file",
+                    "location"
+                ],
+                "description": "Defines type of the message."
+            },
+            "attachments": {
+                "bsonType": [
+                    "array",
+                    "null"
+                ],
+                "items": {
+                    "bsonType": "object",
+                    "required": [
+                        "url",
+                        "mimeType"
+                    ],
+                    "properties": {
+                        "url": {
+                            "bsonType": "string",
+                            "description": "URL of the attachment."
+                        },
+                        "mimeType": {
+                            "bsonType": "string",
+                            "description": "MIME type of the attachment."
+                        },
+                        "size": {
+                            "bsonType": "int",
+                            "description": "Size of the attachment in bytes."
+                        },
+                        "thumbnail": {
+                            "bsonType": [
+                                "string",
+                                "null"
+                            ],
+                            "description": "Preview thumbnail for media."
+                        },
+                        "duration": {
+                            "bsonType": [
+                                "int",
+                                "null"
+                            ],
+                            "description": "Duration of audio/video media in seconds."
+                        }
+                    }
+                },
+                "description": "Array of media attachments with metadata."
+            },
+            "location": {
+                "bsonType": [
+                    "object",
+                    "null"
+                ],
+                "properties": {
+                    "lat": {
+                        "bsonType": "double"
+                    },
+                    "lng": {
+                        "bsonType": "double"
+                    },
+                    "name": {
+                        "bsonType": "string"
+                    }
+                },
+                "description": "Location message metadata."
+            },
+            "replyTo": {
+                "bsonType": [
+                    "string",
+                    "null"
+                ],
+                "description": "ID of the user to whom this message is a reply."
+            },
+            "forwarded": {
+                "bsonType": "bool",
+                "description": "Whether message is forwarded or not."
+            },
+            "timestamp": {
+                "bsonType": "date",
+                "description": "Timestamp must be a valid date."
+            },
+            "deliveredTo": {
+                "bsonType": [
+                    "array",
+                    "null"
+                ],
+                "items": {
+                    "bsonType": "string"
+                },
+                "description": "Array of user IDs that have received this message."
+            },
+            "readBy": {
+                "bsonType": [
+                    "array",
+                    "null"
+                ],
+                "items": {
+                    "bsonType": "string"
+                },
+                "description": "Array of user IDs that have read the message."
+            },
+            "status": {
+                "enum": [
+                    "sent",
+                    "delivered",
+                    "read",
+                    "deleted"
+                ],
+                "description": "Current message delivery status."
+            }
+        }
+    }
+}
