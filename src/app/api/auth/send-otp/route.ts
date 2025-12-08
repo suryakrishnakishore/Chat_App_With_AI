@@ -1,3 +1,4 @@
+import domainVerify from "@/lib/domain-verification.js";
 import { redis } from "@/lib/redis";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
@@ -5,6 +6,16 @@ import nodemailer from "nodemailer";
 export async function POST(req: Request) {
     const { email } = await req.json();
     if (!email) return NextResponse.json({ error: "Email is required." }, { status: 400 });
+
+    const emailRegex = /^.+@.+\..+$/;
+    if (!emailRegex.test(email)) {
+        return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
+    }
+
+    const { exists } = await domainVerify(email.split("@")[1]);
+    if (!exists) {
+        return NextResponse.json({ error: "Email domain does not exist" }, { status: 400 });
+    }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
