@@ -1,4 +1,4 @@
-import domainVerify from "@/lib/domain-verification.js";
+import domainVerify from "@/lib/domain-verification";
 import { redis } from "@/lib/redis";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
@@ -32,10 +32,10 @@ export async function POST(req: Request) {
     })
 
     await transporter.sendMail({
-        from: process.env.EMAIl_USER,
+        from: `"WhatsApp Support" <${process.env.EMAIl_USER}>`,
         to: email,
         subject: "Your OTP Code",
-        test: `Your OTP code is ${otp}. It is valid for 5 minutes.`,
+        text: `Your OTP code is ${otp}. It is valid for 5 minutes.`,
     });
 
     return NextResponse.json({

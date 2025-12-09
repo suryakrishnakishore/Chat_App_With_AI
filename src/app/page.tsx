@@ -101,13 +101,19 @@
 //     </div>
 //   );
 // }
+"use client";
 
 import LeftPanel from "@/components/home/left-panel";
 import RightPanel from "@/components/home/right-panel";
 import Auth from "@/components/auth/auth";
+import useStore from "@/store";
 
 export default function Home() {
-  const 
+  const { user } = useStore((state) => state);
+
+  if (!user) {
+    return <Auth />;
+  }
   return (
     <main className="m-5">
       <div className="flex overflow-y-hidden h-[calc(100vh-40px)] max-w-[1700px] mx-auto bg-[hsl(var(--left-panel))]">
