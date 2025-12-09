@@ -20,8 +20,8 @@ function VerifyOTP({ email, onBack, onSuccess }: { email: string, onBack: () => 
                 email, otp
             });
             
-            console.log("OTP verification response: ", response.data);
-            if(response.data.status === 200) {
+            // console.log("OTP verification response: ", response.data);
+            if(response.status === 200) {
                 onSuccess(response.data.token);
             }
 

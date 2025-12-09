@@ -18,9 +18,9 @@ function SendOTP({ onSuccess }: { onSuccess: (email: string) => void }) {
                 email
             });
 
-            console.log("OTP sent response: ", response.data);
+            // console.log("OTP sent response: ", response);
 
-            if (response.data.status === 200) {
+            if (response.status === 200) {
                 onSuccess(email);
             }
 

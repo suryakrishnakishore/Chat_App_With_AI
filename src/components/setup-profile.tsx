@@ -23,10 +23,11 @@ export default function SetupProfile({ email, sessionToken, onDone }: { email: s
       formData.append("age", age);
       if (profileImage) formData.append("profileImage", profileImage);
 
-      const res = await api.post("/auth/setup-profile", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await api.post("/auth/setup-profile", formData);
 
+      if(res.status !== 200) {
+        throw new Error("Failed to save profile. Try Again..");
+      }
       setAuthToken(res.data.token);
       localStorage.setItem("token", res.data.token);
       onDone();
