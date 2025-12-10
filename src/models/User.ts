@@ -24,15 +24,16 @@ const UserSchema = new Schema(
     },
 
     gender: {
-      type: enum["male", "female", "other"],
-
+      type: String,
+      enum: ["male", "female", "other"],
+      default: "male"
     },
 
     age: {
       type: Number,
       min: 0, max: 120,
       default: null
-    }
+    },
 
     phoneNumber: {
       type: String,

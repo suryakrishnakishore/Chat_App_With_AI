@@ -4,7 +4,7 @@ import User from "@/models/User";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
-export default async function POST(req: Request) {
+export async function POST(req: Request) {
     await connectDB();
 
     const formData = await req.formData();

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import api from '@/lib/apiCalls';
+import OtpInput from './otp-input';
 
 function VerifyOTP({ email, onBack, onSuccess }: { email: string, onBack: () => void, onSuccess: (tempToken: string) => void }) {
 
@@ -11,16 +12,15 @@ function VerifyOTP({ email, onBack, onSuccess }: { email: string, onBack: () => 
     const handleVerifyOTP = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
-        const otpInput = (e.target as HTMLButtonElement).form?.otp as HTMLInputElement;
-        const otp = otpInput.value;
-
         try {
             setLoading(true);
+            console.log("Verifying OTP for email: ", email, " otp: ", otp);
+            
             const response = await api.post("/api/auth/verify-otp", {
                 email, otp
             });
             
-            // console.log("OTP verification response: ", response.data);
+            console.log("OTP verification response: ", response);
             if(response.status === 200) {
                 onSuccess(response.data.token);
             }
@@ -44,14 +44,7 @@ function VerifyOTP({ email, onBack, onSuccess }: { email: string, onBack: () => 
                 Enter OTP 🔐
             </h2>
 
-            <input
-                type="text"
-                maxLength={6}
-                className="w-full tracking-widest text-center text-xl border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="123456"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-            />
+            <OtpInput value={otp} onChange={setOtp} />
 
             <button
                 onClick={handleVerifyOTP}
