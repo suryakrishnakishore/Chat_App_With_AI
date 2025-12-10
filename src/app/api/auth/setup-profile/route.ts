@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     if (age && age !== user.age) user.age = age;
 
     let imageUrl = null;
-    if (profileImage) {
+    if (profileImage && user.profileImage === null) {
         imageUrl = await saveProfileImage(profileImage);
     }
 
@@ -46,6 +46,8 @@ export async function POST(req: Request) {
         secret,
         { expiresIn: "1d" }
     );
+
+    user = await User.findOne({ email });
 
     return NextResponse.json({ user, token }, { status: 200 });
 }

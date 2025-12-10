@@ -11,15 +11,23 @@ import { Input } from '../ui/input';
 import Conversations from '../conversations';
 import { conversations } from '@/dummyData/db';
 import { useConversationStore, usePanelStore } from '@/store/chat-store';
+import useStore from '@/store';
 
 const LeftPanel = () => {
-    const { panel, setPanel } = usePanelStore();
-    const { selectedConversation, setSelectedConversation } = useConversationStore();
+  const { panel, setPanel } = usePanelStore();
+  const { selectedConversation, setSelectedConversation } = useConversationStore();
+  const { user, signOut } = useStore((state) => state);
 
-    const handleConversationClick = (conversation: any): void => {
-      setPanel(true);
-      setSelectedConversation(conversation);
-    }
+  console.log("User left panel: ", user);
+  
+  const handleConversationClick = (conversation: any): void => {
+    setPanel(true);
+    setSelectedConversation(conversation);
+  }
+
+  const handleLogOut = () => {
+    signOut();
+  }
 
   return (
     <div className='flex flex-col h-full border-gray-600 w-1/3 border-r'>
@@ -27,11 +35,24 @@ const LeftPanel = () => {
         <div className='flex bg-[hsl(var(--gray-primary))] items-center justify-between'>
           {/* <Image src={UserImage} alt="User Avatar" width={40} height={40} className='rouunded-full m-2'/>
            */}
-          <User className='rounded-full m-2' size={22}/>
+          {
+            user?.profileImage ? (
+              <Image
+                src={user.profileImage}
+                alt="User Avatar"
+                width={40}
+                height={40}
+                className='rounded-full m-2 object-cover'
+              />
+            ) : (
+              <User className='rounded-full m-2' size={22} />
+            )
+          }
+
           <div className='flex h-full items-center p-3 gap-3'>
-            <MessageSquareDiff size={20} />
+            <MessageSquareDiff size={20} className='cursor-pointer' />
             <ThemeSwitch />
-            <LogOut size={20} />
+            <LogOut onClick={handleLogOut} size={20} className='cursor-pointer' />
           </div>
         </div>
 
@@ -46,21 +67,21 @@ const LeftPanel = () => {
         </div>
       </div>
 
-      <div  className='overflow-auto flex flex-col max-h-[89%] gap-0 my-3'>
-            {conversations?.map((conversation: any) => (
-              <div onClick={() => handleConversationClick(conversation)}>
-                <Conversations  key={conversation._id} conversation={conversation}/>
-              </div>
-              
-            ))}
-          {conversations?.length === 0 && (
-            <div>
-              <p className='text-center text-gray-500 text-sm mt-2'>No Conversations</p>
-              <p className='text-center text-gray-500 text-sm mt-2'>
-                We understand {"you're"} an introvert, but you need to start somewhere
-              </p>
-            </div>
-          )}
+      <div className='overflow-auto flex flex-col max-h-[89%] gap-0 my-3'>
+        {conversations?.map((conversation: any) => (
+          <div onClick={() => handleConversationClick(conversation)}>
+            <Conversations key={conversation._id} conversation={conversation} />
+          </div>
+
+        ))}
+        {conversations?.length === 0 && (
+          <div>
+            <p className='text-center text-gray-500 text-sm mt-2'>No Conversations</p>
+            <p className='text-center text-gray-500 text-sm mt-2'>
+              We understand {"you're"} an introvert, but you need to start somewhere
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
