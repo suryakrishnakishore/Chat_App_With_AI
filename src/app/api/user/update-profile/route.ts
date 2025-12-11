@@ -67,7 +67,7 @@ export async function PUT(req: Request) {
       { new: true }
     );
 
-    return NextResponse.json({ success: true, user: updatedUser });
+    return NextResponse.json({ success: true, user: updatedUser }, { status: 200 });
   } catch (err) {
     console.error("PROFILE UPDATE ERROR:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
