@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     if (age && age.trim() && age !== user.age?.toString())
       user.age = Number(age);
 
-    if (profileImage && profileImage.size > 0) {
+    if (profileImage) {
       const imageUrl = await saveProfileImage(profileImage);
       if (imageUrl) user.profileImage = imageUrl;
     }

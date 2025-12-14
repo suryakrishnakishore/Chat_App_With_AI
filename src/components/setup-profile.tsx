@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api, { setAuthToken } from "@/lib/apiCalls";
 import useStore from "@/store";
 
@@ -49,6 +49,26 @@ export default function SetupProfile({
 
     setLoading(false);
   };
+
+  const getExsistingUser = async () => {
+    try {
+      const res = await api.get(`/api/user/get-profile/${email}`);
+
+      if(res.status !== 200) throw new Error("Failed to fetch profile.");
+
+      setName(res.data.uesr.name || "");
+      setUsername(res.data.user.username || "");
+      setGender(res.data.user.gender);
+      setAge(res.data.user.age?.toString() || "");
+    } catch (error: any) {
+      console.error("Error fetching existing user: ", error);
+      
+    }
+  }
+
+  useEffect(() => {
+    getExsistingUser();
+  }, []);
 
   return (
     <div className="w-[450px] bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl p-10 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700">
