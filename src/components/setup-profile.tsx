@@ -50,24 +50,28 @@ export default function SetupProfile({
     setLoading(false);
   };
 
-  const getExsistingUser = async () => {
-    try {
-      const res = await api.get(`/api/user/get-profile/${email}`);
+  const getExistingUser = async () => {
+  try {
+    const res = await api.get(
+      `/api/user/get-profile/${encodeURIComponent(email)}`
+    );
 
-      if(res.status !== 200) throw new Error("Failed to fetch profile.");
+    if (res.status !== 200) throw new Error("Failed to fetch profile.");
 
-      setName(res.data.uesr.name || "");
-      setUsername(res.data.user.username || "");
-      setGender(res.data.user.gender);
-      setAge(res.data.user.age?.toString() || "");
-    } catch (error: any) {
-      console.error("Error fetching existing user: ", error);
-      
-    }
+    const user = res.data.user;
+
+    setName(user.name || "");
+    setUsername(user.username || "");
+    setGender(user.gender || "");
+    setAge(user.age?.toString() || "");
+  } catch (error: any) {
+    console.error("Error fetching existing user:", error);
   }
+};
+
 
   useEffect(() => {
-    getExsistingUser();
+    getExistingUser();
   }, []);
 
   return (
