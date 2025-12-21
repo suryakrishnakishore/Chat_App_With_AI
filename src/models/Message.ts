@@ -74,12 +74,6 @@ const MessageSchema = new Schema<IMessage>(
       required: true,
     },
 
-    receiverId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      default: null,
-    },
-
     messageType: {
       type: String,
       enum: ["text", "image", "video", "audio", "file", "location"],
@@ -140,5 +134,7 @@ const MessageSchema = new Schema<IMessage>(
 );
 
 MessageSchema.index({ chatId: 1, timestamp: -1 });
+MessageSchema.index({ chatId: 1, deliveredTo: 1 });
+MessageSchema.index({ chatId: 1, readBy: 1 });
 
 export default models.Message || model<IMessage>("Message", MessageSchema);
