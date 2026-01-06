@@ -107,6 +107,8 @@ import LeftPanel from "@/components/home/left-panel";
 import RightPanel from "@/components/home/right-panel";
 import Auth from "@/components/auth/auth";
 import useStore from "@/store";
+import { useEffect } from "react";
+import { initSocket } from "@/lib/socket";
 
 export default function Home() {
   const { user } = useStore((state) => state);
@@ -114,6 +116,13 @@ export default function Home() {
   if (!user) {
     return <Auth />;
   }
+
+  useEffect(() => {
+    if(!user) return;
+    initSocket(user.token);
+
+  }, [user]);
+  
   return (
     <main className="m-5">
       <div className="flex overflow-y-hidden h-[calc(100vh-40px)] max-w-[1700px] mx-auto bg-[hsl(var(--left-panel))]">
