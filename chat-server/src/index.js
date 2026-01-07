@@ -5,6 +5,7 @@ import env from "dotenv";
 import redis from "./config/redis.js";
 import { JWT_SECRET, PORT } from "./env.js";
 import jwt from "jsonwebtoken";
+import registerEvents from "./events/index.js";
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -39,7 +40,7 @@ io.use((socket, next) => {
 
 io.on("connection", (socket) => {
     console.log("User connected on socket server with ID: ", socket.id);
-    
+    registerEvents(io, socket);
     socket.on("disconnect", () => {
         console.log("User with ID ", socket.id, " disconnected from socket server.");
     });
