@@ -3,6 +3,7 @@ import connectDB from "@/lib/database";
 import { NextResponse } from "next/server";
 import Message from "@/models/Message";
 import Conversation from "@/models/Conversation";
+import { getSocket } from "@/lib/socket";
 
 export async function POST(req: Request) {
     await connectDB();
@@ -47,6 +48,13 @@ export async function POST(req: Request) {
         location,
         replyTo,
         forwarded
+    });
+
+    const socket = getSocket();
+
+    socket.emit("message:send", {
+        chatId: newMessage.chatId,
+        message: newMessage
     });
 
     await newMessage.save();

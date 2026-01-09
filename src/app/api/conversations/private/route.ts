@@ -27,7 +27,6 @@ export async function GET(req: Request) {
         const newConversation = new Conversation({
             participants: [userId, participantId],
             chatType: "private",
-
         });
 
         await newConversation.save();
