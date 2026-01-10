@@ -1,40 +1,75 @@
 "use client";
 
-import Image from 'next/image'
-import React, { useEffect, useRef, useState } from 'react'
-import UserImage from '../../../public/placeholder.png'
-import { Button } from '../ui/button'
-import { CgDarkMode } from "react-icons/cg";
-import ThemeSwitch from '../theme-switch';
-import { ListFilter, LogOut, MessageSquareDiff, Search, User } from 'lucide-react';
-import { Input } from '../ui/input';
-import Conversations from '../conversations';
-import { conversations } from '@/dummyData/db';
-import { useConversationStore, usePanelStore } from '@/store/chat-store';
-import useStore from '@/store';
-import UserProfileModal from '../modals/user-profile-modal';
+import Image from "next/image";
+import React, { useEffect, useRef, useState } from "react";
+import { ListFilter, LogOut, MessageSquareDiff, Search, User } from "lucide-react";
+import { Input } from "../ui/input";
+import Conversations from "../conversations";
+import { useConversationStore, usePanelStore } from "@/store/chat-store";
+import useStore from "@/store";
+import UserProfileModal from "../modals/user-profile-modal";
+import api from "@/lib/apiCalls";
+import { getSocket } from "@/socket/socket";
 
 const LeftPanel = () => {
   const { panel, setPanel } = usePanelStore();
-  const { selectedConversation, setSelectedConversation } = useConversationStore();
+  const { conversations, setConversations, setSelectedConversation } = useConversationStore();
   const { user, signOut } = useStore((state) => state);
-  console.log("User left panel: ", user);
-  
-  const [ userPanel, setUserPanel ] = useState(false);
+
+  const [userPanel, setUserPanel] = useState(false);
   const userPanelRef = useRef<HTMLDivElement | null>(null);
 
-  const [ profileModal, setProfileModal ] = useState(false);
-  const profileModalRef = useRef<HTMLDivElement | null>(null);
+  const [profileModal, setProfileModal] = useState(false);
 
-  const handleConversationClick = (conversation: any): void => {
+  // Load conversations from API
+  const loadConversations = async () => {
+    if (!user) return;
+
+    try {
+      const res = await api.get(`/api/conversations/my`);
+      setConversations(res.data.conversations);
+    } catch (err) {
+      console.error("Error fetching conversations:", err);
+    }
+  };
+
+  useEffect(() => {
+    loadConversations();
+  }, [user]);
+
+  // Listen for new incoming messages
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    socket.on("message:new", (data) => {
+      const { chatId, message } = data;
+
+      // Update only if it's this user's conversation
+      setConversations((prev) => {
+        return prev.map((c) =>
+          c._id === chatId
+            ? { ...c, lastMessage: message, updatedAt: new Date().toISOString() }
+            : c
+        );
+      });
+    });
+
+    return () => {
+      socket.off("message:new");
+    };
+  }, []);
+
+  const handleConversationClick = (conversation: any) => {
     setPanel(true);
     setSelectedConversation(conversation);
-  }
+  };
 
-  const handleLogOut = () => {
+  const handleLogout = () => {
     signOut();
-  }
+  };
 
+  // Close dropdown when clicking outside
   useEffect(() => {
     function handleOutside(e: MouseEvent) {
       if (userPanelRef.current && !userPanelRef.current.contains(e.target as Node)) {
@@ -46,111 +81,109 @@ const LeftPanel = () => {
   }, []);
 
   return (
-    <div className='flex flex-col h-full border-gray-600 w-1/3 border-r'>
-      <div className='sticky top-0 bg-[hsl(var(--left-panel))] z-10'>
-        <div className='flex bg-[hsl(var(--gray-primary))] items-center justify-between'>
+    <div className="flex flex-col h-full border-r border-gray-600 w-1/3">
+
+      {/* Header */}
+      <div className="sticky top-0 bg-[hsl(var(--left-panel))] z-10">
+        <div className="flex bg-[hsl(var(--gray-primary))] items-center justify-between">
+
+          {/* User Button */}
           <button
             onClick={() => setUserPanel((s) => !s)}
-            aria-expanded={userPanel}
-            aria-haspopup="menu"
-            className="flex items-center gap-2 ml-2 focus:outline-none"
+            className="flex items-center gap-2 ml-3"
           >
-            {
-              user?.profileImage ? (
-                <Image
-                  src={user.profileImage}
-                  alt="User Avatar"
-                  width={40}
-                  height={40}
-                  className='rounded-full object-cover cursor-pointer'
-                />
-              ) : (
-                <User className='rounded-full' size={22} />
-              )
-            }
-            <div className='hidden sm:flex flex-col text-left'>
-              <span className='text-sm font-medium text-[hsl(var(--foreground))] leading-none'>
-                {user?.name ?? (user?.email?.split("@")[0] ?? "You")}
+            {user?.profileImage ? (
+              <Image
+                src={user.profileImage}
+                alt="User Avatar"
+                width={40}
+                height={40}
+                className="rounded-full object-cover"
+              />
+            ) : (
+              <User size={22} className="rounded-full" />
+            )}
+
+            <div className="hidden sm:flex flex-col text-left">
+              <span className="text-sm font-medium text-[hsl(var(--foreground))] leading-none">
+                {user?.name}
               </span>
-              <span className='text-xs text-[hsl(var(--muted-foreground))] leading-none'>
-                @{user?.username ?? "unknown"}
+              <span className="text-xs text-[hsl(var(--muted-foreground))] leading-none">
+                @{user?.username}
               </span>
             </div>
           </button>
 
+          {/* Dropdown */}
           {userPanel && (
-            <div ref={userPanelRef} className="absolute top-10 mt-3 w-56 z-30">
-              <div className="absolute -top-2 left-5 w-3 h-3 bg-[hsl(var(--container))] transform rotate-45 border-t border-l border-[hsl(var(--sidebar-border))]"></div>
-              <div className="bg-[hsl(var(--container))] border border-[hsl(var(--sidebar-border))] rounded-lg shadow-lg overflow-hidden">
+            <div ref={userPanelRef} className="absolute top-12 left-3 w-56 z-30">
+              <div className="bg-[hsl(var(--container))] border border-[hsl(var(--sidebar-border))] rounded-lg shadow-lg">
                 <div className="px-3 py-3">
-                  <p className="text-sm font-semibold text-[hsl(var(--foreground))] truncate">{user?.name ?? "No name"}</p>
-                  <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1 truncate">{user?.email}</p>
+                  <p className="text-sm font-semibold">{user?.name}</p>
+                  <p className="text-xs text-gray-500">{user?.email}</p>
                 </div>
+
                 <div className="divide-y divide-[hsl(var(--sidebar-border))]">
                   <button
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-[hsl(var(--gray-secondary))] transition-colors"
-                    onClick={() => { 
+                    className="w-full px-3 py-2 text-sm hover:bg-[hsl(var(--gray-secondary))]"
+                    onClick={() => {
                       setUserPanel(false);
                       setProfileModal(true);
-                     }}
+                    }}
                   >
                     My Profile
                   </button>
-                  <button
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-[hsl(var(--gray-secondary))] transition-colors"
-                    onClick={() => { /* navigate to settings */ }}
-                  >
+                  <button className="w-full px-3 py-2 text-sm hover:bg-[hsl(var(--gray-secondary))]">
                     Settings
                   </button>
                   <button
-                    className="w-full text-left px-3 py-2 text-sm text-destructive hover:bg-[hsl(var(--gray-secondary))] transition-colors"
-                    onClick={handleLogOut}
+                    className="w-full px-3 py-2 text-sm text-red-500 hover:bg-[hsl(var(--gray-secondary))]"
+                    onClick={handleLogout}
                   >
-                    Log Out
+                    Logout
                   </button>
                 </div>
               </div>
             </div>
           )}
 
-          <div className='flex h-full items-center p-3 gap-3'>
-            <MessageSquareDiff size={20} className='cursor-pointer' />
+          {/* Top-right icons */}
+          <div className="flex items-center p-3 gap-3">
+            <MessageSquareDiff size={20} className="cursor-pointer" />
             <ThemeSwitch />
-            <LogOut onClick={handleLogOut} size={20} className='cursor-pointer' />
+            <LogOut size={20} className="cursor-pointer" onClick={handleLogout} />
           </div>
         </div>
 
-        <div className='p-3 flex items-center'>
-          <Search size={20} className='absolute m-2 text-gray-400' />
+        {/* Search Box */}
+        <div className="p-3 flex items-center">
+          <Search size={20} className="absolute m-2 text-gray-400" />
           <Input
-            type='text'
-            placeholder='Search or start new chat'
-            className='focus:ring-0 !bg-[hsl(var(--gray-primary))] text-gray-400 border-0 py-2 pl-8 text-sm mr-2 shadow-sm'
+            type="text"
+            placeholder="Search or start new chat"
+            className="pl-8 py-2 text-sm bg-[hsl(var(--gray-primary))] text-gray-300 border-0"
           />
-          <ListFilter className='cursor-pointer' />
+          <ListFilter className="cursor-pointer ml-2" />
         </div>
       </div>
 
-      <div className='overflow-auto flex flex-col max-h-[89%] gap-0 my-3'>
-        {conversations?.map((conversation: any) => (
-          <div onClick={() => handleConversationClick(conversation)}>
-            <Conversations key={conversation._id} conversation={conversation} />
+      {/* Conversations List */}
+      <div className="overflow-auto flex flex-col max-h-[89%] gap-0 my-3 px-2">
+        {conversations.map((c: any) => (
+          <div key={c._id} onClick={() => handleConversationClick(c)}>
+            <Conversations conversation={c} />
           </div>
-
         ))}
-        {conversations?.length === 0 && (
-          <div>
-            <p className='text-center text-gray-500 text-sm mt-2'>No Conversations</p>
-            <p className='text-center text-gray-500 text-sm mt-2'>
-              We understand {"you're"} an introvert, but you need to start somewhere
-            </p>
-          </div>
+
+        {conversations.length === 0 && (
+          <p className="text-center text-gray-500 mt-4">No conversations yet</p>
         )}
       </div>
 
+      {/* Profile Modal */}
       <UserProfileModal open={profileModal} onClose={() => setProfileModal(false)} />
     </div>
-  )
-}
+  );
+};
 
-export default LeftPanel
+export default LeftPanel;

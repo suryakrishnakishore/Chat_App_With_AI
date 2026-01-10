@@ -2,9 +2,42 @@ import { Laugh, Mic, Plus, Send } from "lucide-react";
 import { Input } from "./ui/input";
 import { useState } from "react";
 import { Button } from "./ui/button";
+import api from "@/lib/apiCalls";
+import { useConversationStore } from "@/store/chat-store";
+import { useMessageStore } from "@/store/message-store";
+import { getSocket } from "@/lib/socket";
 
 const MessageInput = () => {
   const [msgText, setMsgText] = useState("");
+  const { selectedConversation } = useConversationStore();
+
+  const handleSend = async () => {
+    if (!msgText.trim() || !selectedConversation) return;
+
+    const chatId = selectedConversation._id;
+
+    const payload = {
+      chatId,
+      content: msgText,
+      messageType: "text",
+    };
+
+    // First send to REST
+    const res = await api.post("/api/messages/send", payload);
+    const savedMessage = res.data.message;
+
+    // Optimistic append
+    useMessageStore.getState().addMessage(chatId, savedMessage);
+
+    // Emit through socket
+    const socket = getSocket();
+    socket.emit("message:send", {
+      chatId,
+      message: savedMessage,
+    });
+
+    setMsgText("");
+  };
 
   return (
     <div className="bg-[hsl(var(--gray-primary))] px-4 py-3 flex items-center gap-4 border-t border-gray-700 shadow-inner">
@@ -18,7 +51,7 @@ const MessageInput = () => {
         onSubmit={(e) => {
           e.preventDefault();
           if (!msgText.trim()) return;
-          setMsgText("");
+          handleSend()
         }}
       >
         <Input

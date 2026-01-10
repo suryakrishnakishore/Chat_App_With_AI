@@ -109,6 +109,7 @@ import Auth from "@/components/auth/auth";
 import useStore from "@/store";
 import { useEffect } from "react";
 import { initSocket } from "@/lib/socket";
+import { registerMessageEvents } from "@/lib/useSocket";
 
 export default function Home() {
   const { user } = useStore((state) => state);
@@ -120,7 +121,7 @@ export default function Home() {
   useEffect(() => {
     if(!user) return;
     initSocket(user.token);
-
+    registerMessageEvents();
   }, [user]);
   
   return (

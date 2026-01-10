@@ -75,4 +75,4 @@ const Conversations: React.FC<ConversationsProps> = ({ conversation }) => {
   )
 }
 
-export default Conversations
+export default Conversations;
