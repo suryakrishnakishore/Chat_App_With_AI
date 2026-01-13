@@ -22,7 +22,6 @@ const LeftPanel = () => {
   const userPanelRef = useRef<HTMLDivElement | null>(null);
 
   const [profileModal, setProfileModal] = useState(false);
-
   // Load conversations from API
   const loadConversations = async () => {
     if (!user) return;

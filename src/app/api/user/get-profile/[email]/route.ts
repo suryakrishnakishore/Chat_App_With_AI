@@ -9,7 +9,7 @@ export async function GET(
   try {
     await connectDB();
 
-    const email = context.params.email; // <-- This is correct for [email] routes
+    const email = params.email; // <-- This is correct for [email] routes
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
