@@ -113,13 +113,16 @@ import { registerMessageEvents } from "@/lib/useSocket";
 import ClientOnly from "@/components/client-only";
 
 export default function Home() {
-  const { user, signOut } = useStore((state) => state);
+  const { user, signOut, hydrated } = useStore((state) => state);
   console.log("Page User: ", user);
   useEffect(() => {
     if (!user) return;
     initSocket(user.token);
     registerMessageEvents();
   }, [user]);
+  if (!hydrated) {
+    return null; // or loading spinner
+  }
   if (!user) {
     return <Auth />;
   }

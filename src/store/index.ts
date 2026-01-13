@@ -3,45 +3,35 @@ import { getSocket } from "@/lib/socket";
 
 type StoreState = {
   user: any | null;
+  hydrated: boolean;
   hydrateUser: () => void;
-  setCredentials: (user: any) => void;
+  setCredentials: (val: any) => void;
   signOut: () => void;
 };
 
 const useStore = create<StoreState>((set) => ({
   user: null,
+  hydrated: false,
 
   hydrateUser: () => {
     try {
       const raw = localStorage.getItem("chatUser");
-      if (raw) {
-        const user = JSON.parse(raw);
-        set({ user });
-      }
-    } catch (err) {
-      console.error("Hydration error:", err);
+      const user = raw ? JSON.parse(raw) : null;
+      set({ user, hydrated: true });
+    } catch {
+      set({ user: null, hydrated: true });
     }
   },
 
-  setCredentials: (user) => {
-    try {
-      localStorage.setItem("chatUser", JSON.stringify(user));
-    } catch (err) {
-      console.error("Set creds error:", err);
-    }
-    set({ user });
+  setCredentials: (val) => {
+    localStorage.setItem("chatUser", JSON.stringify(val));
+    set({ user: val });
   },
 
   signOut: () => {
-    try {
-      localStorage.removeItem("chatUser");
-    } catch (err) {
-      console.error("Sign out error:", err);
-    }
-
+    localStorage.removeItem("chatUser");
     const socket = getSocket();
     if (socket) socket.disconnect();
-
     set({ user: null });
   },
 }));
