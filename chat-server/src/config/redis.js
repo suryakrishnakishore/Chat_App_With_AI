@@ -1,6 +1,7 @@
 import Redis from "ioredis";
+import { REDIS_URL } from "../env.js";
 
-const redis = new Redis(process.env.REDIS_URL, {
+const redis = new Redis(REDIS_URL, {
   tls: {},
 });
 

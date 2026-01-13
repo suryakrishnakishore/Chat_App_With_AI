@@ -116,13 +116,17 @@ export default function Home() {
   const { user, signOut, hydrated } = useStore((state) => state);
   console.log("Page User: ", user);
   useEffect(() => {
+    if(!hydrated) return;
     if (!user) return;
+    console.log("Token for socket: ", user.token);
+    
     initSocket(user.token);
     registerMessageEvents();
   }, [user]);
   if (!hydrated) {
     return null; // or loading spinner
   }
+  
   if (!user) {
     return <Auth />;
   }

@@ -1,4 +1,4 @@
-import { joinRoom, leaveRoom } from "../utils/socketRooms";
+import { joinRoom, leaveRoom } from "../utils/socketRooms.js";
 
 export function conversationJoin(io, socket,data) {
     const { chatId } = data;

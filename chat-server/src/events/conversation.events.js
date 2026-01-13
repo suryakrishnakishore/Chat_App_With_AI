@@ -1,4 +1,4 @@
-import { conversationGroupAddUser, conversationGroupPromoteAdmin, conversationGroupRemoveUser, conversationJoin, conversationLeave } from "../controllers/conversation.controller";
+import { conversationGroupAddUser, conversationGroupPromoteAdmin, conversationGroupRemoveUser, conversationJoin, conversationLeave, conversationUpdate } from "../controllers/conversation.controller.js";
 
 
 export default function conversationEvents(io, socket) {
@@ -22,7 +22,7 @@ export default function conversationEvents(io, socket) {
         conversationGroupRemoveUser(io, socket, data);
     });
 
-    socket.on("conversation:group:promote-admin", () => {
+    socket.on("conversation:group:promote-admin", (data) => {
         conversationGroupPromoteAdmin(io, socket, data);
     });
 }

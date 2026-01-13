@@ -1,4 +1,4 @@
-import { handleDelivered, handleRead, handleSendMessage, handleTyping } from "../controllers/message.controller"
+import { handleDelivered, handleRead, handleSendMessage, handleTyping } from "../controllers/message.controller.js"
 
 export default function messageEvents(io, socket) {
     socket.on("message:send", (data) => {
