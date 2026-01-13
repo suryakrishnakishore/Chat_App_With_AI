@@ -22,7 +22,6 @@ const MessageInput = () => {
       messageType: "text",
     };
 
-    // First send to REST
     const res = await api.post("/api/messages/send", payload);
     const savedMessage = res.data.message;
 

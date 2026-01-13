@@ -11,7 +11,7 @@ export async function GET(req: Request) {
         return new Response(JSON.stringify({ error: "Unauthorized User." }), { status: 401 });
     }
 
-    const userId = user.userId;
+    const userId = user.id;
 
     try {
         const involvedConversations = await Conversation.find({

@@ -105,32 +105,36 @@
 
 import LeftPanel from "@/components/home/left-panel";
 import RightPanel from "@/components/home/right-panel";
-import Auth from "@/components/auth/auth";
+import Auth from "@/components/auth/page";
 import useStore from "@/store";
 import { useEffect } from "react";
 import { initSocket } from "@/lib/socket";
 import { registerMessageEvents } from "@/lib/useSocket";
+import ClientOnly from "@/components/client-only";
 
 export default function Home() {
-  const { user } = useStore((state) => state);
-
+  const { user, signOut } = useStore((state) => state);
+  console.log("Page User: ", user);
+  useEffect(() => {
+    if (!user) return;
+    initSocket(user.token);
+    registerMessageEvents();
+  }, [user]);
   if (!user) {
     return <Auth />;
   }
 
-  useEffect(() => {
-    if(!user) return;
-    initSocket(user.token);
-    registerMessageEvents();
-  }, [user]);
-  
+
+
   return (
-    <main className="m-5">
-      <div className="flex overflow-y-hidden h-[calc(100vh-40px)] max-w-[1700px] mx-auto bg-[hsl(var(--left-panel))]">
-        <div className="fixed top-0 left-0 w-full h-36 bg-[hsl(var(--green-primary))] dark:bg-transparent -z-30"></div>
-        <LeftPanel />
-        <RightPanel />
-      </div>
-    </main>
+    <ClientOnly>
+      <main className="m-5">
+        <div className="flex overflow-y-hidden h-[calc(100vh-40px)] max-w-[1700px] mx-auto bg-[hsl(var(--left-panel))]">
+          <div className="fixed top-0 left-0 w-full h-36 bg-[hsl(var(--green-primary))] dark:bg-transparent -z-30"></div>
+          <LeftPanel />
+          <RightPanel />
+        </div>
+      </main>
+    </ClientOnly>
   )
 }

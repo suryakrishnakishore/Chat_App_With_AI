@@ -1,40 +1,49 @@
 import { create } from "zustand";
+import { getSocket } from "@/lib/socket";
 
-type storeState = {
-    user: any,
-    setCredentials: (val: any) => void,
-    signOut: () => void
+type StoreState = {
+  user: any | null;
+  hydrateUser: () => void;
+  setCredentials: (user: any) => void;
+  signOut: () => void;
 };
 
-const getInitialUser = (): any | null => {
-    if(typeof window === "undefined") return null;
+const useStore = create<StoreState>((set) => ({
+  user: null,
+
+  hydrateUser: () => {
     try {
-        const raw = localStorage.getItem("chatUser");
-        return raw ? JSON.parse(raw) : null;
+      const raw = localStorage.getItem("chatUser");
+      if (raw) {
+        const user = JSON.parse(raw);
+        set({ user });
+      }
+    } catch (err) {
+      console.error("Hydration error:", err);
     }
-    catch (error) {
-        return null;
-    }
-}
+  },
 
-const useStore = create<storeState>((set) => ({
-    user: getInitialUser(),
-    
-    setCredentials: (val: any) => {
-        try {
-            if(typeof window !== "undefined") localStorage.setItem("chatUser", JSON.stringify(val));
-        }
-        catch {}
-        set({ user: val });
-    },
-    signOut: () => {
-        try {
-            if(typeof window !== "undefined") localStorage.removeItem("chatUser");
-        }
-        catch {}
-
-        set({ user: null });
+  setCredentials: (user) => {
+    try {
+      localStorage.setItem("chatUser", JSON.stringify(user));
+    } catch (err) {
+      console.error("Set creds error:", err);
     }
+    set({ user });
+  },
+
+  signOut: () => {
+    try {
+      localStorage.removeItem("chatUser");
+    } catch (err) {
+      console.error("Sign out error:", err);
+    }
+
+    const socket = getSocket();
+    if (socket) socket.disconnect();
+
+    set({ user: null });
+  },
 }));
 
 export default useStore;

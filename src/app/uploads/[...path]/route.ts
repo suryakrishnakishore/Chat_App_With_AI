@@ -13,10 +13,10 @@ export async function GET(
       ...params.path
     );
 
-    const image = await readFile(filePath);
+    const imageBuffer = await readFile(filePath);
 
-    return new NextResponse(image, {
-      headers: { "Content-Type": "image/jpeg" },
+    return new NextResponse(imageBuffer, {
+      headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=31536000", },
     });
   } catch (err) {
     return NextResponse.json({ error: "File not found" }, { status: 404 });

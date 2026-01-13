@@ -26,7 +26,7 @@ function VerifyOTP({ email, onBack, onSuccess }: { email: string, onBack: () => 
             }
 
         } catch (error: any) {
-            console.error("Error sending OTP: ", error.response?.data || error.message);
+            console.error("Error verifying OTP: ", error.response?.data || error.message);
             alert(error.response?.data?.error || "Invalid OTP");
 
         }

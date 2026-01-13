@@ -9,11 +9,13 @@ import { useConversationStore, usePanelStore } from "@/store/chat-store";
 import useStore from "@/store";
 import UserProfileModal from "../modals/user-profile-modal";
 import api from "@/lib/apiCalls";
-import { getSocket } from "@/socket/socket";
+import { getSocket } from "@/lib/socket";
+import ThemeSwitch from "../theme-switch";
 
 const LeftPanel = () => {
   const { panel, setPanel } = usePanelStore();
-  const { conversations, setConversations, setSelectedConversation } = useConversationStore();
+  const [conversations, setConversations] = useState<any[]>([]);
+  const { selectedConversation, setSelectedConversation } = useConversationStore();
   const { user, signOut } = useStore((state) => state);
 
   const [userPanel, setUserPanel] = useState(false);

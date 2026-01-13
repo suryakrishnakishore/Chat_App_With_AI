@@ -40,6 +40,8 @@ export default function SetupProfile({
 
       const user = { ...res.data.user, token: res.data.token };
 
+      console.log("Setup Profile User: ", user);
+      
       setCredentials(user);
       setAuthToken(res.data.token);
       onDone();
