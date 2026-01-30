@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Input } from './ui/input'
 import api from '@/lib/apiCalls';
 
-function SearchInput({ }) {
+function SearchInput({ searchedConversations, setSearchedConversations }: any) {
     const [inputVal, setInputVal] = useState("");
 
     function handleChange(e: any) {
@@ -14,11 +14,15 @@ function SearchInput({ }) {
     async function handleSearchUsers() {
         const res = await api.get(`/api/user/get-profile/${inputVal}`);
         console.log("Search result: ", res);
+        setSearchedConversations(res.data.searchedUsers);
 
     }
 
     useEffect(() => {
-        if (!inputVal || inputVal.length < 3) return;
+        if (!inputVal || inputVal.length < 3) {
+            setSearchedConversations([]);
+            return;
+        }
         handleSearchUsers();
     }, [inputVal]);
 

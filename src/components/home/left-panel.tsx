@@ -12,6 +12,7 @@ import api from "@/lib/apiCalls";
 import { getSocket } from "@/lib/socket";
 import ThemeSwitch from "../theme-switch";
 import SearchInput from "../search-input";
+import SearchedConversations from "../searched-conversations";
 
 const LeftPanel = () => {
   const { panel, setPanel } = usePanelStore();
@@ -23,6 +24,9 @@ const LeftPanel = () => {
   const userPanelRef = useRef<HTMLDivElement | null>(null);
 
   const [profileModal, setProfileModal] = useState(false);
+
+  const [searchedConversations, setSearchedConversations] = useState<any[]>([]);
+
   // Load conversations from API
   const loadConversations = async () => {
     if (!user) return;
@@ -158,7 +162,18 @@ const LeftPanel = () => {
         </div>
 
         {/* Search Box */}
-        <SearchInput />
+        <SearchInput searchedConversations={searchedConversations} setSearchedConversations={setSearchedConversations}/>
+      </div>
+      
+      {/* Searched Conversations */}
+      <div className="overflow-auto flex flex-col max-h-[89%] gap-0 my-3 px-2">
+        {searchedConversations.map((c: any) => {
+          return (
+            <div key={c._id} onClick={handleConversationClick}>
+              <SearchedConversations conversation={c} />
+            </div>
+          )
+        })}
       </div>
 
       {/* Conversations List */}

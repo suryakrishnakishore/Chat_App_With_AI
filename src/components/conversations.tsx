@@ -63,7 +63,6 @@ const Conversations: React.FC<ConversationsProps> = ({ conversation }) => {
 								<span>{lastMessage?.content}</span>
 							)
 						)}
-						
           </div>
         </div>
       </div>
