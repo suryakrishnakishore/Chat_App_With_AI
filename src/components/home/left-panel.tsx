@@ -11,6 +11,7 @@ import UserProfileModal from "../modals/user-profile-modal";
 import api from "@/lib/apiCalls";
 import { getSocket } from "@/lib/socket";
 import ThemeSwitch from "../theme-switch";
+import SearchInput from "../search-input";
 
 const LeftPanel = () => {
   const { panel, setPanel } = usePanelStore();
@@ -157,15 +158,7 @@ const LeftPanel = () => {
         </div>
 
         {/* Search Box */}
-        <div className="p-3 flex items-center">
-          <Search size={20} className="absolute m-2 text-gray-400" />
-          <Input
-            type="text"
-            placeholder="Search or start new chat"
-            className="pl-8 py-2 text-sm bg-[hsl(var(--gray-primary))] text-gray-300 border-0"
-          />
-          <ListFilter className="cursor-pointer ml-2" />
-        </div>
+        <SearchInput />
       </div>
 
       {/* Conversations List */}
