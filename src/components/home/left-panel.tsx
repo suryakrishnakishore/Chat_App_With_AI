@@ -71,6 +71,20 @@ const LeftPanel = () => {
     setSelectedConversation(conversation);
   };
 
+  const handleSeachedConversationClick = async (conversation: any) => {
+    try {
+      const res = await api.post(`/api/conversations/private`, {
+        participantId: conversation._id
+      });
+      
+    } catch (err: any) {
+
+    }
+    finally {
+
+    }
+  }
+
   const handleLogout = () => {
     signOut();
   };
@@ -169,7 +183,7 @@ const LeftPanel = () => {
       <div className="overflow-auto flex flex-col max-h-[89%] gap-0 my-3 px-2">
         {searchedConversations.map((c: any) => {
           return (
-            <div key={c._id} onClick={handleConversationClick}>
+            <div key={c._id} onClick={() => handleConversationClick(c)}>
               <SearchedConversations conversation={c} />
             </div>
           )

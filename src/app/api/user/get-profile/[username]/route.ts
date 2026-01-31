@@ -8,9 +8,9 @@ export async function GET(req: Request, { params }: { params: { username: string
         await connectDB();
 
         const username = params.username;
-        console.log("Params: ", params);
+        // console.log("Params: ", params);
         
-        console.log("Username: ", username);
+        // console.log("Username: ", username);
         
 
         if (!username) {

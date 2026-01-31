@@ -1,5 +1,3 @@
-"use client";
-
 import { useMessageStore } from "@/store/message-store";
 import ChatBubble from "./chat-bubble";
 import { useConversationStore } from "@/store/chat-store";
@@ -10,6 +8,8 @@ export default function MessageContainer() {
   const { selectedConversation } = useConversationStore();
   const chatId = selectedConversation?._id;
 
+  if(!chatId) return;
+  
   const messages = useMessageStore((state) => state.messages[chatId] || []);
   const setMessages = useMessageStore((state) => state.setMessages);
 

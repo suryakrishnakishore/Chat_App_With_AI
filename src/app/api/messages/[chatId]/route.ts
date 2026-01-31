@@ -3,10 +3,10 @@ import connectDB from "@/lib/database";
 import Message from "@/models/Message";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, context: { params: { chatId: string }}) {
+export async function GET(req: Request, { params }: { params: { chatId: string }}) {
     await connectDB();
 
-    const { chatId } = context.params;
+    const chatId = params.chatId;
     const user = getAuthUser(req);
     const url = new URL(req.url);
     const searchParams = new URLSearchParams(url.searchParams);

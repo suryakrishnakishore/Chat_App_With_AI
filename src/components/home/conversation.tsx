@@ -6,10 +6,13 @@ import MessageInput from '../message-input';
 import bgLight from '../../../public/bg-light.png';
 import bgDark from '../../../public/bg-dark.png';
 import { useTheme } from 'next-themes';
+import PrivateChatCard from '../private-chat-card';
 
 const Conversation = () => {
   const { selectedConversation } = useConversationStore();
   const { theme } = useTheme();
+
+  const isGroup = selectedConversation?.chatType === "Group";
 
   const backgroundImage = theme === 'dark' ? bgDark.src : bgLight.src;
   return (
@@ -18,9 +21,18 @@ const Conversation = () => {
         backgroundImage: `url(${backgroundImage})`,
       }}
     >
-      <ConversationHeader conversation={selectedConversation} />
+      {isGroup ? (
+        <GroupConversationHeader conversation={selectedConversation} />
+      ) : (
+        <PrivateConversationHeader conversation={selectedConversation} />
+      )}
+
       <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <MessageContainer />
+        {isGroup ? (
+          <GroupChatCard conversation={selectedConversation} />
+        ) : (
+          <PrivateChatCard conversation={selectedConversation} />
+        )}
       </div>
       <MessageInput />
     </div>

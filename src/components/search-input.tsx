@@ -13,7 +13,7 @@ function SearchInput({ searchedConversations, setSearchedConversations }: any) {
 
     async function handleSearchUsers() {
         const res = await api.get(`/api/user/get-profile/${inputVal}`);
-        console.log("Search result: ", res);
+        // console.log("Search result: ", res);
         setSearchedConversations(res.data.searchedUsers);
 
     }

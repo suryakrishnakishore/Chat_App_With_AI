@@ -3,10 +3,10 @@ import { create } from "zustand";
 export type Conversation = {
   _id: number | string;
   isOnline: boolean;
+  chatType: string;
   groupImage: string | null;
   groupName?: string | null;
   sender: string;
-  admin?: string | null;
   lastMessage: { _id: number | string,content: string, sender: string, messageType: string  };
   _creationTime: number;
   participants: string[];
