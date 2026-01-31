@@ -7,12 +7,15 @@ import bgLight from '../../../public/bg-light.png';
 import bgDark from '../../../public/bg-dark.png';
 import { useTheme } from 'next-themes';
 import PrivateChatCard from '../private-chat-card';
+import PrivateConversationHeader from '../private-conversation-header';
+import GroupConversationHeader from '../group-conversation-header';
+import GroupChatCard from '../group-chat-card';
 
 const Conversation = () => {
   const { selectedConversation } = useConversationStore();
   const { theme } = useTheme();
 
-  const isGroup = selectedConversation?.chatType === "Group";
+  const isGroup = selectedConversation?.chatType === "group";
 
   const backgroundImage = theme === 'dark' ? bgDark.src : bgLight.src;
   return (

@@ -2,8 +2,8 @@ import { create } from "zustand";
 
 interface MessageStore {
     messages: Record<string, any[]>,
-    addMessage: (chatId: string, msg: any) => void,
-    setMessages: (chatId: string, msgs: any[]) => void
+    addMessage: (chatId: string | number, msg: any) => void,
+    setMessages: (chatId: string | number, msgs: any[]) => void
 }
 
 export const useMessageStore = create<MessageStore>((set, get) => ({

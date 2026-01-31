@@ -71,17 +71,15 @@ const LeftPanel = () => {
     setSelectedConversation(conversation);
   };
 
-  const handleSeachedConversationClick = async (conversation: any) => {
+  const handleSearchedConversationClick = async (conversation: any) => {
     try {
       const res = await api.post(`/api/conversations/private`, {
         participantId: conversation._id
       });
-      
+      setPanel(true);
+      setSelectedConversation(res.data.conversation);
     } catch (err: any) {
-
-    }
-    finally {
-
+      console.log("Error while fetching the participant of chat: ", err);
     }
   }
 
@@ -183,7 +181,7 @@ const LeftPanel = () => {
       <div className="overflow-auto flex flex-col max-h-[89%] gap-0 my-3 px-2">
         {searchedConversations.map((c: any) => {
           return (
-            <div key={c._id} onClick={() => handleConversationClick(c)}>
+            <div key={c._id} onClick={() => handleSearchedConversationClick(c)}>
               <SearchedConversations conversation={c} />
             </div>
           )

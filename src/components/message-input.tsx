@@ -12,30 +12,39 @@ const MessageInput = () => {
   const { selectedConversation } = useConversationStore();
 
   const handleSend = async () => {
-    if (!msgText.trim() || !selectedConversation) return;
+    try {
+      if (!msgText.trim() || !selectedConversation) return;
 
-    const chatId = selectedConversation._id;
+      const chatId = selectedConversation._id;
 
-    const payload = {
-      chatId,
-      content: msgText,
-      messageType: "text",
-    };
+      const payload = {
+        chatId,
+        content: msgText,
+        messageType: "text",
+      };
 
-    const res = await api.post("/api/messages/send", payload);
-    const savedMessage = res.data.message;
+      const res = await api.post("/api/messages/send", payload);
+      const savedMessage = res.data.message;
 
-    // Optimistic append
-    useMessageStore.getState().addMessage(chatId, savedMessage);
+      // Optimistic append
+      useMessageStore.getState().addMessage(chatId, savedMessage);
 
-    // Emit through socket
-    const socket = getSocket();
-    socket.emit("message:send", {
-      chatId,
-      message: savedMessage,
-    });
+      // Emit through socket
+      const socket = getSocket();
+      if(!socket) return;
+      socket.emit("message:send", {
+        chatId,
+        message: savedMessage,
+      });
 
-    setMsgText("");
+      
+    }
+    catch (err: any) {
+      console.error("Send message error:", err);
+    }
+    finally {
+      setMsgText("");
+    }
   };
 
   return (

@@ -5,47 +5,24 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatDate(timestamp: number): string {
-  const date = new Date(timestamp*1000);
-  const curDate: Date = new Date();
-  const diffInMilliseconds = Math.abs(date.getTime() - curDate.getTime());
-  console.log(date, "     ", curDate);
-  
-  const millisecondsInSecond = 1000;
-  const secondsInMinute = 60;
-  const minutesInHour = 60;
-  const hoursInDay = 24;
+export function formatDate(input: any): string {
+  const date = typeof input === "number"
+    ? new Date(input)              // MS timestamp
+    : new Date(input);             // ISO string
 
-  const millisecondsInMinute = millisecondsInSecond * secondsInMinute;
-  const millisecondsInHour = millisecondsInMinute * minutesInHour;
-  const millisecondsInDay = millisecondsInHour * hoursInDay;
+  if (isNaN(date.getTime())) return ""; // Prevent invalid date
 
-  const days = Math.floor(diffInMilliseconds / millisecondsInDay);
-  const hours = Math.floor((diffInMilliseconds % millisecondsInDay) / millisecondsInHour);
-  const minutes = Math.floor((diffInMilliseconds % millisecondsInHour) / millisecondsInMinute);
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
 
-  let formatedDate: string;
-  if(days == 0) {
-    if(hours == 0) {
-      if(minutes == 0) formatedDate = "Just Now";
-      else if (minutes === 1) formatedDate = "1 minute ago";
-      else formatedDate = `${minutes} minutes ago`;
-    }
-    else {
-      const hours = date.getHours();
-      const minutes = date.getMinutes();
-      formatedDate = `${hours}:${minutes}`;
-    }
-  }
-  else if (days == 1) {
-    formatedDate = "Yesterday";
-  }
-  else {
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-    formatedDate = `${day}/${month}/${year}`;
-  }
+  const minute = 60_000;
+  const hour = 3_600_000;
+  const day = 86_400_000;
 
-  return formatedDate;
+  if (diff < minute) return "Just now";
+  if (diff < hour) return `${Math.floor(diff / minute)} min ago`;
+  if (diff < day) return `${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}`;
+  if (diff < day * 2) return "Yesterday";
+
+  return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 }

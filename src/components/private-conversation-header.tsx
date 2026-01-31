@@ -5,27 +5,36 @@ import { ArrowLeft, Video } from "lucide-react";
 import { useConversationStore, usePanelStore } from "@/store/chat-store";
 import useStore from "@/store";
 import api from "@/lib/apiCalls";
+import { useEffect, useState } from "react";
 
 export default function PrivateConversationHeader({ conversation }: any) {
   const { setSelectedConversation } = useConversationStore();
   const { setPanel } = usePanelStore();
   const { user } = useStore((state) => state);
+  
+  const me = user?._id;
+  const isGroup = conversation?.chatType === "group";
 
-  let participantId = conversation?.participants[0];
-  if(conversation.participants[1] !== user._id) participantId = conversation.participants[1];
+  const [participant, setParticipant] = useState({});
 
-  let participant: any;
-  async function getParticipant() {
-    try {
-        const res = await api.get(`/api/user/get-by-id/${participantId}`);
-        participant = res.data.user;
-    } 
-    catch (err: any) {
-        console.log("Error while fetching the participant of chat: ", err);
-        
+  useEffect(() => {
+    if (isGroup) return;
+
+    const otherUserId = conversation.participants?.find((p: any) => p !== me);
+    if (!otherUserId) return;
+
+    async function fetchUser() {
+      try {
+        const res = await api.get(`/api/user/get-by-id/${otherUserId}`);
+        setParticipant(res.data.user);
+      } catch (err) {
+        console.log("Error fetching other user", err);
+      }
     }
 
-  }
+    fetchUser();
+  }, [conversation, me, isGroup]);
+
   return (
     <div className="px-4 py-3 border-b bg-[hsl(var(--gray-primary))] flex items-center gap-3 sticky top-0">
       <ArrowLeft

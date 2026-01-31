@@ -3,8 +3,8 @@
 import { useEffect, useState, useRef } from "react";
 import api from "@/lib/apiCalls";
 import { getSocket } from "@/lib/socket";
-import PrivateChatBubble from "./private-chat-bubble";
 import useStore from "@/store";
+import PrivateChatBubble from "./private-chat-bubble";
 
 export default function PrivateChatCard({ conversation }: any) {
   const [messages, setMessages] = useState<any[]>([]);
@@ -14,7 +14,7 @@ export default function PrivateChatCard({ conversation }: any) {
   // Fetch history
   const loadMessages = async () => {
     try {
-      const res = await api.get(`/api/messages?chatId=${conversation._id}`);
+      const res = await api.get(`/api/messages/${conversation._id}`);
       setMessages(res.data.messages);
     } catch (err) {
       console.error("Error loading messages:", err);
