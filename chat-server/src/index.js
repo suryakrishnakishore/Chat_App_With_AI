@@ -2,7 +2,7 @@ import { Server } from "socket.io";
 import http from "http";
 import app from "./app.js";
 import env from "dotenv";
-import redis from "./config/redis.js";
+// import redis from "./config/redis.js";
 import { JWT_SECRET, PORT } from "./env.js";
 import jwt from "jsonwebtoken";
 import registerEvents from "./events/index.js";
@@ -14,9 +14,9 @@ const io = new Server(server, {
     }
 });
 
-redis.on("ready", () => {
-    console.log("Redis is connected to socket server.");
-});
+// redis.on("ready", () => {
+//     console.log("Redis is connected to socket server.");
+// });
 
 io.use((socket, next) => {
     const token = socket.handshake.auth.token;

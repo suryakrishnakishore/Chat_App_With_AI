@@ -14,7 +14,9 @@ export default function PrivateChatCard({ conversation }: any) {
   // Fetch history
   const loadMessages = async () => {
     try {
-      const res = await api.get(`/api/messages/${conversation._id}`);
+      const res = await api.get(`/api/messages/get-by-id/${conversation._id}`);
+      console.log("response: ", res);
+      
       setMessages(res.data.messages);
     } catch (err) {
       console.error("Error loading messages:", err);
@@ -29,6 +31,17 @@ export default function PrivateChatCard({ conversation }: any) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    socket.emit("conversation:join", { chatId: conversation._id });
+
+    return () => {
+      socket.emit("conversation:leave", { chatId: conversation._id });
+    };
+  }, [conversation]);
 
   // Listen for real-time messages
   useEffect(() => {

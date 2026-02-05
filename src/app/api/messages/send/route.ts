@@ -3,13 +3,13 @@ import connectDB from "@/lib/database";
 import { NextResponse } from "next/server";
 import Message from "@/models/Message";
 import Conversation from "@/models/Conversation";
-import { getSocket } from "@/lib/socket";
 
 export async function POST(req: Request) {
     await connectDB();
 
     const user = getAuthUser(req);
-
+    console.log("Message send user: ", user);
+    
     if(!user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -25,23 +25,8 @@ export async function POST(req: Request) {
         forwarded
     } = await req.json();
 
-    if(!chatId || !content || !messageType) {
-        return NextResponse.json({ error: "Chat ID, content, and message type are required." }, { status: 400 });
-    }
-
-    const conversation = await Conversation.findById(chatId);
-
-    if(!conversation) {
-        return NextResponse.json({ error: "Conversation not found." }, { status: 404 });
-    }
-    
-    if(!conversation.participants.includes(user.user_id)) {
-        return NextResponse.json({ error: "You are not a participant of this conversation." }, { status: 403 });
-    }
-
-    const newMessage = new Message({
+    console.log("Message send req: ", {
         chatId,
-        senderId: user.user_id,
         content,
         messageType,
         attachments,
@@ -49,12 +34,32 @@ export async function POST(req: Request) {
         replyTo,
         forwarded
     });
+    
 
-    const socket = getSocket();
+    if(!chatId || !content || !messageType) {
+        return NextResponse.json({ error: "Chat ID, content, and message type are required." }, { status: 400 });
+    }
 
-    socket.emit("message:send", {
-        chatId: newMessage.chatId,
-        message: newMessage
+    const conversation = await Conversation.findById(chatId);
+    console.log("Message send conversation: ", conversation);
+    
+    if(!conversation) {
+        return NextResponse.json({ error: "Conversation not found." }, { status: 404 });
+    }
+    
+    if(!conversation.participants.includes(user.id)) {
+        return NextResponse.json({ error: "You are not a participant of this conversation." }, { status: 403 });
+    }
+
+    const newMessage = new Message({
+        chatId,
+        senderId: user.id,
+        content,
+        messageType,
+        attachments,
+        location,
+        replyTo,
+        forwarded
     });
 
     await newMessage.save();
