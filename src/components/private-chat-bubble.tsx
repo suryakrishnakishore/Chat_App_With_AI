@@ -4,7 +4,8 @@ import React from "react";
 
 export default function PrivateChatBubble({ msg, currentUserId }: any) {
   const isMe = msg.senderId === currentUserId;
-
+  console.log("IsME", isMe);
+  
   return (
     <div
       className={`flex w-full my-1 ${

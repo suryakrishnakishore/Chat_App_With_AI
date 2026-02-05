@@ -6,7 +6,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     try {
         await connectDB();
 
-        const id = params.id;
+        const id = await params.id;
         // console.log("Id of other user: ", id);
         
         let user = await User.findById(id);
