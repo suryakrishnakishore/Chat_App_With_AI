@@ -26,3 +26,21 @@ export function formatDate(input: any): string {
 
   return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 }
+
+export function formatDateforChat(input: any): string {
+  const date = typeof input === "number"
+    ? new Date(input)              // MS timestamp
+    : new Date(input);             // ISO string
+
+  if (isNaN(date.getTime())) return ""; // Prevent invalid date
+
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+
+  const day = 86_400_000;
+
+  if (diff < day) return `Today`;
+  if (diff < day * 2) return "Yesterday";
+
+  return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+}

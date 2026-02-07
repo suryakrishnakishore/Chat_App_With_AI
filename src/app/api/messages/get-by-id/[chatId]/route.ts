@@ -22,7 +22,7 @@ export async function GET(req: Request, { params }: { params: { chatId: string }
             chatId,
             ...(beforeParam && { timestamp: { $lt: new Date(beforeParam) } })
         })
-            .sort({ timestamp: -1 })
+            .sort({ timestamp: 1 })
             .limit(limitParam ? parseInt(limitParam) : 50);
 
         return NextResponse.json({ messages }, { status: 200 });

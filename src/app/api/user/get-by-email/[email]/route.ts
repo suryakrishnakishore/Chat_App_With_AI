@@ -3,31 +3,29 @@ import User from "@/models/User";
 import { NextResponse } from "next/server";
 
 
-export async function GET(req: Request, { params }: { params: { username: string } }) {
+export async function GET(req: Request, { params }: { params: { email: string } }) {
     try {
         await connectDB();
 
-        const username = await params.username;
+        const email = await params.email;
         // console.log("Params: ", params);
         
-        // console.log("Username: ", username);
+        // console.log("email: ", email);
         
 
-        if (!username) {
+        if (!email) {
             return NextResponse.json({ error: "Username is required" }, { status: 400 });
         }
 
-        const users = await User.find({
-            username: { $regex: new RegExp(username, 'i') }
-        });
+        const user = await User.findOne({ email });
 
-        if (users.length === 0) {
+        if (user.length === 0) {
             return NextResponse.json({
                 error: "No users found.",
             }, { status: 404 });
         }
 
-        return NextResponse.json({ searchedUsers: users }, { status: 200 });
+        return NextResponse.json({ user }, { status: 200 });
     } catch (err: any) {
         console.log("Error while getting the required users.", err);
         return NextResponse.json({

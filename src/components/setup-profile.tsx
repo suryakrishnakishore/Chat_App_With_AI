@@ -55,7 +55,7 @@ export default function SetupProfile({
   const getExistingUser = async () => {
   try {
     const res = await api.get(
-      `/api/user/get-profile/${encodeURIComponent(email)}`
+      `/api/user/get-by-email/${encodeURIComponent(email)}`
     );
 
     if (res.status !== 200) throw new Error("Failed to fetch profile.");
