@@ -1,6 +1,6 @@
 import { Laugh, Mic, Plus, Send } from "lucide-react";
 import { Input } from "./ui/input";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "./ui/button";
 import api from "@/lib/apiCalls";
 import { useConversationStore } from "@/store/chat-store";
@@ -10,6 +10,8 @@ import { getSocket } from "@/lib/socket";
 const MessageInput = () => {
   const [msgText, setMsgText] = useState("");
   const { selectedConversation } = useConversationStore();
+  const [pendingAttachments, setPendingAttachments] = useState<any[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleSend = async () => {
     try {
@@ -31,13 +33,13 @@ const MessageInput = () => {
 
       // Emit through socket
       const socket = getSocket();
-      if(!socket) return;
+      if (!socket) return;
       socket.emit("message:send", {
         chatId,
         message: savedMessage,
       });
 
-      
+
     }
     catch (err: any) {
       console.error("Send message error:", err);
@@ -47,11 +49,27 @@ const MessageInput = () => {
     }
   };
 
+  const handleSelectFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+
+    const selected = Array.from(e.target.files);
+
+    if (selected.length + pendingAttachments.length > 5) {
+      alert("You can attach a maximum of 5 files per message.");
+      return;
+    }
+
+    setPendingAttachments((prev) => [...prev, ...selected]);
+  };
+
+
   return (
     <div className="bg-[hsl(var(--gray-primary))] px-4 py-3 flex items-center gap-4 border-t border-gray-700 shadow-inner">
       <div className="flex items-center gap-3 text-gray-500">
         <Laugh className="hover:text-[hsl(var(--green-primary))] transition-colors" />
-        <Plus className="hover:text-[hsl(var(--green-primary))] transition-colors" />
+        <Plus onClick={() => fileInputRef.current?.click()}
+          className="cursor-pointer hover:text-[hsl(var(--green-primary))]"
+        />
       </div>
 
       <form
@@ -62,6 +80,14 @@ const MessageInput = () => {
           handleSend()
         }}
       >
+        <input
+          type="file"
+          hidden
+          ref={fileInputRef}
+          multiple
+          onChange={handleSelectFiles}
+        />
+
         <Input
           type="text"
           placeholder="Type a message..."

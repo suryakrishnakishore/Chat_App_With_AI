@@ -103,7 +103,7 @@ export default function Conversations({ conversation }: any) {
 
       {/* TIME */}
       <div className="text-xs text-[hsl(var(--muted-foreground))] whitespace-nowrap ml-2">
-        {conversation.updatedAt ? formatDate(conversation.updatedAt) : ""}
+        {conversation.updatedAt ? formatDate(new Date(conversation.updatedAt).toDateString()) : ""}
       </div>
     </div>
   );
