@@ -108,30 +108,33 @@ import RightPanel from "@/components/home/right-panel";
 import Auth from "@/components/auth/page";
 import useStore from "@/store";
 import { useEffect } from "react";
-import { initSocket } from "@/lib/socket";
-import { registerMessageEvents } from "@/lib/useSocket";
+import { getSocket, initSocket } from "@/lib/socket";
+import { registerMessageEvents, registerPresenceEvents } from "@/lib/useSocket";
 import ClientOnly from "@/components/client-only";
 
 export default function Home() {
   const { user, signOut, hydrated } = useStore((state) => state);
   console.log("Page User: ", user);
   useEffect(() => {
-    if(!hydrated) return;
+    if (!hydrated) return;
     if (!user) return;
     console.log("Token for socket: ", user.token);
-    
+
     initSocket(user.token);
     registerMessageEvents();
+    registerPresenceEvents();
+    const socket = getSocket();
+    if (socket) {
+      socket.emit("user:online", user._id);
+    }
   }, [user]);
   if (!hydrated) {
     return null; // or loading spinner
   }
-  
+
   if (!user) {
     return <Auth />;
   }
-
-
 
   return (
     <ClientOnly>

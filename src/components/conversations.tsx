@@ -8,6 +8,7 @@ import { ImageIcon, VideoIcon } from "lucide-react";
 import { MessageSeenSvg } from "@/lib/svgs";
 import useStore from "@/store";
 import api from "@/lib/apiCalls";
+import { getSocket } from "@/lib/socket";
 
 export default function Conversations({ conversation }: any) {
   const { user } = useStore((state) => state);
@@ -66,21 +67,17 @@ export default function Conversations({ conversation }: any) {
         </AvatarFallback>
       </Avatar>
 
-      {/* TEXT */}
       <div className="flex flex-col flex-1 min-w-0">
-        {/* NAME */}
         <p className="font-semibold text-[hsl(var(--foreground))] truncate">
           {displayName}
         </p>
 
-        {/* USERNAME */}
         {!isGroup && (
           <p className="text-xs text-[hsl(var(--muted-foreground))] -mt-1 truncate">
             @{displayUsername}
           </p>
         )}
 
-        {/* LAST MESSAGE */}
         <div className="flex items-center text-xs text-[hsl(var(--muted-foreground))] truncate mt-[2px]">
           {isGroup && !isMyMessage && (
             <span className="mr-1 font-medium">
@@ -101,7 +98,6 @@ export default function Conversations({ conversation }: any) {
         </div>
       </div>
 
-      {/* TIME */}
       <div className="text-xs text-[hsl(var(--muted-foreground))] whitespace-nowrap ml-2">
         {conversation.updatedAt ? formatDate(new Date(conversation.updatedAt).toDateString()) : ""}
       </div>

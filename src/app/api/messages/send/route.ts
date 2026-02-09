@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     });
     
 
-    if(!chatId || !content || !messageType) {
+    if(!chatId || (!content && !attachments) || !messageType) {
         return NextResponse.json({ error: "Chat ID, content, and message type are required." }, { status: 400 });
     }
 

@@ -20,7 +20,7 @@ const io = new Server(server, {
 
 io.use((socket, next) => {
     const token = socket.handshake.auth.token;
-    if(!token) {
+    if (!token) {
         return next(new Error("Authentication error: Token not provided."));
     }
 
@@ -36,18 +36,44 @@ io.use((socket, next) => {
     }
 });
 
-
+const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
     console.log("User connected on socket server with ID: ", socket.id);
     registerEvents(io, socket);
+    socket.on("user:online", (userId) => {
+        onlineUsers.set(userId, socket.id);
+        console.log("User online ID", userId);
+        
+        io.emit("presence:update", {
+            userId: userId.toString(),
+            isOnline: true
+        });
+
+        socket.emit("presence:list", Object.fromEntries(onlineUsers));
+    });
+
     socket.on("disconnect", () => {
         console.log("User with ID ", socket.id, " disconnected from socket server.");
+        const entry = [...onlineUsers.entries()].find(([key, val]) => val === socket.id);
+
+        if (!entry) {
+            console.log("No user found for this socket. Ignoring disconnect.");
+            return;
+        }
+
+        const userId = entry[0];
+
+        onlineUsers.delete(userId);
+
+        io.emit("presence:update", { userId: userId.toString(), isOnline: false });
+
+        console.log("User offline:", userId);
     });
 });
 
 server.listen(PORT, () => {
-    console.log("Socket server is running on port: ", PORT); 
+    console.log("Socket server is running on port: ", PORT);
 });
 
 export default io;

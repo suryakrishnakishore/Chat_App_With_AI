@@ -43,7 +43,6 @@ const LeftPanel = () => {
     loadConversations();
   }, [user]);
 
-  // Listen for new incoming messages
   useEffect(() => {
     const socket = getSocket();
     if (!socket) return;
@@ -51,7 +50,6 @@ const LeftPanel = () => {
     socket.on("message:new", (data) => {
       const { chatId, message } = data;
 
-      // Update only if it's this user's conversation
       setConversations((prev) => {
         return prev.map((c) =>
           c._id === chatId
@@ -64,6 +62,13 @@ const LeftPanel = () => {
     return () => {
       socket.off("message:new");
     };
+  }, []);
+
+  useEffect(() => {
+    const socket = getSocket();
+    if(!socket) return;
+
+    
   }, []);
 
   const handleConversationClick = (conversation: any) => {
