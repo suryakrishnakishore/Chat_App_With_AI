@@ -43,6 +43,17 @@ export default function PrivateChatCard({ conversation }: any) {
     };
   }, [conversation._id]);
 
+  useEffect(() => {
+    const socket = getSocket();
+    if(!socket) return;
+
+    socket.emit("message:read", { chatId: conversation._id });
+
+    return () => {
+      socket.emit("message:read", { chatId: conversation._id });
+    }
+  }, [conversation._id]);
+  
   // Listen for real-time messages
   useEffect(() => {
     const socket = getSocket();
@@ -63,18 +74,18 @@ export default function PrivateChatCard({ conversation }: any) {
     const socket = getSocket();
     if (!socket) return;
 
-    socket.on("message:delivered", ({ chatId, userId, messageIds }) => {
+    socket.on("message:seen", ({ chatId, userId, messageIds }) => {
       if(chatId === conversation._id) {
         setMessages((prev) => {
           return prev.map((msg) => (
-            messageIds.includes(msg._id) ? { ...msg, status: "delivered" } : msg
+            messageIds.includes(msg._id) ? { ...msg, status: "seen" } : msg
           ));
         });
       }
     });
 
     return () => {
-      socket.off("message:delivered");
+      socket.off("message:seen");
     };
   }, [conversation._id]);
 

@@ -5,32 +5,32 @@ export async function conversationJoin(io, socket, data) {
     const { chatId } = data;
     joinRoom(socket, chatId);
 
-    const undelivered = await Message.find({
-        chatId,
-        senderId: { $ne: userId },
-        deliveredTo: { $ne: userId }
-    }).select("_id");
-
-    const deliveredIds = undelivered.map(m => m._id);
-
-    await Message.updateMany(
-        {
-            _id: { $in: deliveredIds }
-        },
-        {
-            status: "delivered"
-        }
-    );
-
-    // io.to(chatId).emit("conversation:joined", {
+    // const undelivered = await Message.find({
     //     chatId,
-    //     userId: socket.user.userId,
-    //     email: socket.user.email
-    // });
+    //     senderId: { $ne: userId },
+    //     deliveredTo: { $ne: userId }
+    // }).select("_id");
 
-    io.to(chatId).emit("message:delivered", {
-        chatId, userId: socket.user.userId, messageIds: deliveredIds
+    // const deliveredIds = undelivered.map(m => m._id);
+
+    // await Message.updateMany(
+    //     {
+    //         _id: { $in: deliveredIds }
+    //     },
+    //     {
+    //         status: "delivered"
+    //     }
+    // );
+
+    io.to(chatId).emit("conversation:joined", {
+        chatId,
+        userId: socket.user.userId,
+        email: socket.user.email
     });
+
+    // io.to(chatId).emit("message:delivered", {
+    //     chatId, userId: socket.user.userId, messageIds: deliveredIds
+    // });
 }
 
 export function conversationLeave(io, socket, data) {

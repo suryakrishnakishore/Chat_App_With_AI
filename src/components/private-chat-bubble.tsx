@@ -4,7 +4,8 @@ import Image from "next/image";
 
 export default function PrivateChatBubble({ msg, currentUserId }: any) {
   const isMe = msg.senderId === currentUserId;
-
+  console.log("Messages: ", msg);
+  
   const bubbleClass = isMe
     ? "bg-green-600 text-white self-end"
     : "bg-gray-300 dark:bg-gray-700 text-black dark:text-white self-start";
@@ -65,7 +66,7 @@ export default function PrivateChatBubble({ msg, currentUserId }: any) {
           <>
             {msg.status === "sent" && "✓"}
             {msg.status === "delivered" && "✓✓"}
-            {msg.status === "read" && <span className="text-blue-500">✓✓</span>}
+            {msg.status === "seen" && <span className="text-blue-500">✓✓</span>}
           </>
         )}
       </span>

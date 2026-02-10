@@ -126,6 +126,7 @@ export default function Home() {
     const socket = getSocket();
     if (socket) {
       socket.emit("user:online", user._id);
+      
     }
   }, [user]);
   if (!hydrated) {

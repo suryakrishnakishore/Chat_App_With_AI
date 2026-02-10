@@ -10,14 +10,14 @@ export function handleSendMessage(io, socket, data) {
     });
 }
 
-// export function handleDelivered(io, socket, data) {
-//     const { chatId, messageIds } = data;
-//     io.to(chatId).emit("message:delivered", {
-//         chatId,
-//         userId: socket.user.userId,
-//         messageIds
-//     });
-// }
+export function handleDelivered(io, socket, data) {
+    const { chatId, messageIds } = data;
+    io.to(chatId).emit("message:delivered", {
+        chatId,
+        userId: socket.user.userId,
+        messageIds
+    });
+}
 
 export async function handleRead(io, socket, data) {
     const { chatId } = data;

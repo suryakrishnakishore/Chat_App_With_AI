@@ -7,6 +7,8 @@ import { JWT_SECRET, PORT } from "./env.js";
 import jwt from "jsonwebtoken";
 import registerEvents from "./events/index.js";
 import connectDB from "./libs/database.js";
+import Message from "./models/Message.js";
+import mongoose from "mongoose";
 
 connectDB();
 
@@ -41,13 +43,13 @@ io.use((socket, next) => {
 
 const onlineUsers = new Map();
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
     console.log("User connected on socket server with ID: ", socket.id);
     registerEvents(io, socket);
     socket.on("user:online", (userId) => {
         onlineUsers.set(userId, socket.id);
         console.log("User online ID", userId);
-        
+
         io.emit("presence:update", {
             userId: userId.toString(),
             isOnline: true
@@ -55,6 +57,41 @@ io.on("connection", (socket) => {
 
         socket.emit("presence:list", Object.fromEntries(onlineUsers));
     });
+
+    try {
+        console.log("Delivered user id: ", socket.user.userId);
+        
+        const undelivered = await Message.find({
+            senderId: { $ne: new mongoose.Types.ObjectId(socket.user.userId) },
+            status: "sent"
+        }).select("_id chatId");
+        console.log("Undelivered messages: ", undelivered);
+
+        const ids = undelivered.map(m => m._id);
+
+        if (ids.legnth > 0) {
+            await Message.updateMany(
+                { _id: { $in: ids } },
+                {
+                    status: "delivered"
+                }
+            );
+
+            const chatIds = [...new Set(undelivered.map(m => m.chatId.toString()))];
+
+            chatIds.forEach(chatId => {
+                io.to(chatId).emit("message:delivered", {
+                    chatId,
+                    userId,
+                    messageIds: ids
+                });
+            });
+        }
+    } catch (err) {
+        console.log("Error while setting delivered status.", err);
+
+    }
+
 
     socket.on("disconnect", () => {
         console.log("User with ID ", socket.id, " disconnected from socket server.");
