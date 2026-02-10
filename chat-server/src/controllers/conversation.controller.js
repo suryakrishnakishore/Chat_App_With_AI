@@ -1,16 +1,29 @@
+import Message from "../models/Message.js";
 import { joinRoom, leaveRoom } from "../utils/socketRooms.js";
 
-export function conversationJoin(io, socket,data) {
+export async function conversationJoin(io, socket,data) {
     const { chatId } = data;
     joinRoom(socket, chatId);
     
-    io.to(chatId).emit("conversation:joined", {
-        chatId,
-        userId: socket.user.userId,
-        email: socket.user.email
+    await Message.updateMany(
+        {
+            chatId,
+            senderId: { $ne: socket.user.userId }
+        },
+        {
+            status: "delivered"
+        }
+    );
+
+    // io.to(chatId).emit("conversation:joined", {
+    //     chatId,
+    //     userId: socket.user.userId,
+    //     email: socket.user.email
+    // });
+
+    io.to(chatId).emit("message:delivered", {
+        chatId, userId: socket.user.userId
     });
-
-
 }
 
 export function conversationLeave(io, socket, data) {

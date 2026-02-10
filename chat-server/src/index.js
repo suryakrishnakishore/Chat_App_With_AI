@@ -6,6 +6,9 @@ import env from "dotenv";
 import { JWT_SECRET, PORT } from "./env.js";
 import jwt from "jsonwebtoken";
 import registerEvents from "./events/index.js";
+import connectDB from "./libs/database.js";
+
+connectDB();
 
 const server = http.createServer(app);
 const io = new Server(server, {
