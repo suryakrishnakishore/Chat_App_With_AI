@@ -59,6 +59,25 @@ export default function PrivateChatCard({ conversation }: any) {
     };
   }, [conversation._id]);
 
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    socket.on("message:delivered", ({ chatId, userId, messageIds }) => {
+      if(chatId === conversation._id) {
+        setMessages((prev) => {
+          return prev.map((msg) => (
+            messageIds.includes(msg._id) ? { ...msg, status: "delivered" } : msg
+          ));
+        });
+      }
+    });
+
+    return () => {
+      socket.off("message:delivered");
+    };
+  }, [conversation._id]);
+
   // GROUP MESSAGES BY DATE
   const groupMessagesByDate = (msgs: any[]) => {
     const grouped: Record<string, any[]> = {};

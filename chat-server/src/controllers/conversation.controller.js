@@ -1,14 +1,21 @@
 import Message from "../models/Message.js";
 import { joinRoom, leaveRoom } from "../utils/socketRooms.js";
 
-export async function conversationJoin(io, socket,data) {
+export async function conversationJoin(io, socket, data) {
     const { chatId } = data;
     joinRoom(socket, chatId);
-    
+
+    const undelivered = await Message.find({
+        chatId,
+        senderId: { $ne: userId },
+        deliveredTo: { $ne: userId }
+    }).select("_id");
+
+    const deliveredIds = undelivered.map(m => m._id);
+
     await Message.updateMany(
         {
-            chatId,
-            senderId: { $ne: socket.user.userId }
+            _id: { $in: deliveredIds }
         },
         {
             status: "delivered"
@@ -22,7 +29,7 @@ export async function conversationJoin(io, socket,data) {
     // });
 
     io.to(chatId).emit("message:delivered", {
-        chatId, userId: socket.user.userId
+        chatId, userId: socket.user.userId, messageIds: deliveredIds
     });
 }
 
@@ -31,7 +38,7 @@ export function conversationLeave(io, socket, data) {
     leaveRoom(socket, chatId);
 
     io.to(chatId).emit("conversation:leave", {
-        chatId, 
+        chatId,
         userId: socket.user.userId,
         email: socket.user.email
     });
