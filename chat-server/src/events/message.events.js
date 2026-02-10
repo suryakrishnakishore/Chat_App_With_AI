@@ -5,9 +5,9 @@ export default function messageEvents(io, socket) {
         handleSendMessage(io, socket, data);
     });
 
-    socket.on("message:deliver", (data) => {
-        handleDelivered(io, socket, data);
-    });
+    // socket.on("message:deliver", (data) => {
+    //     handleDelivered(io, socket, data);
+    // });
 
     socket.on("message:read", (data) => {
         handleRead(io, socket, data);
