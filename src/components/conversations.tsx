@@ -8,12 +8,14 @@ import { ImageIcon, VideoIcon } from "lucide-react";
 import { MessageSeenSvg } from "@/lib/svgs";
 import useStore from "@/store";
 import api from "@/lib/apiCalls";
-import { getSocket } from "@/lib/socket";
+import { useConversationStore } from "@/store/chat-store";
 
 export default function Conversations({ conversation }: any) {
   const { user } = useStore((state) => state);
-  const me = user?._id;
+  const { selectedConversation } = useConversationStore();
 
+  const me = user?._id;
+  const isSelected = selectedConversation?._id === conversation._id;
   const isGroup = conversation.chatType === "group";
 
   const [otherUser, setOtherUser] = useState<any>(null);
@@ -51,10 +53,17 @@ export default function Conversations({ conversation }: any) {
   const last = conversation.lastMessage;
   const lastMsgText = last?.content ?? "";
   const isMyMessage = last?.senderId === me;
+  
+  const containerStyle = isSelected
+    ? "bg-[hsl(var(--gray-secondary))] border-[hsl(var(--foreground))]"
+    : conversation.unreadCount > 0
+    ? "bg-green-100 dark:bg-green-900 border-green-300 dark:border-green-700"
+    : "bg-[hsl(var(--container))] border-[hsl(var(--gray-primary))] hover:bg-[hsl(var(--gray-secondary))]";
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 rounded-lg border border-[hsl(var(--gray-primary))] bg-[hsl(var(--container))] hover:bg-[hsl(var(--gray-secondary))] transition cursor-pointer shadow-sm mb-2">
-
+    <div
+      className={`flex items-center gap-3 px-4 py-3 rounded-lg border transition cursor-pointer shadow-sm mb-2 ${containerStyle}`}
+    >
       {/* Avatar */}
       <Avatar className="w-12 h-12 relative">
         {!isGroup && otherUser?.isOnline && (
@@ -67,8 +76,16 @@ export default function Conversations({ conversation }: any) {
         </AvatarFallback>
       </Avatar>
 
+      {/* Content */}
       <div className="flex flex-col flex-1 min-w-0">
-        <p className="font-semibold text-[hsl(var(--foreground))] truncate">
+        {/* Name */}
+        <p
+          className={`truncate ${
+            conversation.unreadCount > 0 && !isSelected
+              ? "font-bold text-[hsl(var(--foreground))]"
+              : "font-semibold text-[hsl(var(--foreground))]"
+          }`}
+        >
           {displayName}
         </p>
 
@@ -78,7 +95,14 @@ export default function Conversations({ conversation }: any) {
           </p>
         )}
 
-        <div className="flex items-center text-xs text-[hsl(var(--muted-foreground))] truncate mt-[2px]">
+        {/* Last Message */}
+        <div
+          className={`flex items-center text-xs truncate mt-[2px] ${
+            conversation.unreadCount > 0 && !isSelected
+              ? "text-[hsl(var(--foreground))]"
+              : "text-[hsl(var(--muted-foreground))]"
+          }`}
+        >
           {isGroup && !isMyMessage && (
             <span className="mr-1 font-medium">
               {last?.senderName ?? "User"}:
@@ -88,8 +112,12 @@ export default function Conversations({ conversation }: any) {
           <div className="truncate flex items-center">
             {isMyMessage && <MessageSeenSvg className="mr-1" />}
 
-            {last?.messageType === "image" && <ImageIcon className="mr-1" size={16} />}
-            {last?.messageType === "video" && <VideoIcon className="mr-1" size={16} />}
+            {last?.messageType === "image" && (
+              <ImageIcon className="mr-1" size={16} />
+            )}
+            {last?.messageType === "video" && (
+              <VideoIcon className="mr-1" size={16} />
+            )}
 
             {lastMsgText.length > 30
               ? lastMsgText.slice(0, 30) + "..."
@@ -98,8 +126,27 @@ export default function Conversations({ conversation }: any) {
         </div>
       </div>
 
-      <div className="text-xs text-[hsl(var(--muted-foreground))] whitespace-nowrap ml-2">
-        {conversation.updatedAt ? formatDate(new Date(conversation.updatedAt).toDateString()) : ""}
+      {/* Right Side */}
+      <div className="flex flex-col items-end ml-2">
+        <span
+          className={`text-xs whitespace-nowrap ${
+            conversation.unreadCount > 0 && !isSelected
+              ? "text-green-600 dark:text-green-400 font-semibold"
+              : "text-[hsl(var(--muted-foreground))]"
+          }`}
+        >
+          {conversation.updatedAt
+            ? formatDate(
+                new Date(conversation.updatedAt).toDateString()
+              )
+            : ""}
+        </span>
+
+        {!isSelected && conversation.unreadCount > 0 && (
+          <span className="mt-1 text-[10px] bg-green-500 text-white rounded-full px-2 py-[2px] min-w-[20px] text-center">
+            {conversation.unreadCount}
+          </span>
+        )}
       </div>
     </div>
   );

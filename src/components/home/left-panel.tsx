@@ -32,7 +32,18 @@ const LeftPanel = () => {
 
     try {
       const res = await api.get(`/api/conversations/my`);
-      setConversations(res.data.conversations);
+      const sorted = res.data.conversations.sort(
+        (a: any, b: any) =>
+          new Date(b.updatedAt).getTime() -
+          new Date(a.updatedAt).getTime()
+      );
+
+      setConversations(
+        sorted.map((c: any) => ({
+          ...c,
+          unreadCount: 0
+        }))
+      );
     } catch (err) {
       console.error("Error fetching conversations:", err);
     }
@@ -46,17 +57,30 @@ const LeftPanel = () => {
     const socket = getSocket();
     if (!socket) return;
 
-    socket.on("message:new", (data) => {
-      const { chatId, message } = data;
-
+    socket.on("message:new", ({ chatId, message }) => {
       setConversations((prev) => {
-        return prev.map((c) =>
-          c._id === chatId
-            ? { ...c, lastMessage: message, updatedAt: new Date().toISOString() }
-            : c
-        );
+        const existing = prev.find((c) => c._id === chatId);
+        if (!existing) return prev;
+
+        const isCurrentlyOpen =
+          selectedConversation?._id === chatId;
+
+        const updatedConversation = {
+          ...existing,
+          lastMessage: message,
+          updatedAt: new Date().toISOString(),
+          unreadCount: isCurrentlyOpen
+            ? 0
+            : (existing.unreadCount || 0) + 1,
+        };
+
+        return [
+          updatedConversation,
+          ...prev.filter((c) => c._id !== chatId),
+        ];
       });
     });
+
 
     return () => {
       socket.off("message:new");
@@ -98,6 +122,13 @@ const LeftPanel = () => {
   const handleConversationClick = (conversation: any) => {
     setPanel(true);
     setSelectedConversation(conversation);
+    setConversations((prev) =>
+      prev.map((c) =>
+        c._id === conversation._id
+          ? { ...c, unreadCount: 0 }
+          : c
+      )
+    );
   };
 
   const handleSearchedConversationClick = async (conversation: any) => {
