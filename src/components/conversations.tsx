@@ -20,6 +20,8 @@ export default function Conversations({ conversation }: any) {
 
   const [otherUser, setOtherUser] = useState<any>(null);
 
+  console.log(`${me} conersations: `, conversation.unreadCount);
+  
   useEffect(() => {
     if (isGroup) return;
 
@@ -53,7 +55,7 @@ export default function Conversations({ conversation }: any) {
   const last = conversation.lastMessage;
   const lastMsgText = last?.content ?? "";
   const isMyMessage = last?.senderId === me;
-  
+
   const containerStyle = isSelected
     ? "bg-[hsl(var(--gray-secondary))] border-[hsl(var(--foreground))]"
     : conversation.unreadCount > 0
