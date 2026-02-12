@@ -67,10 +67,33 @@ const LeftPanel = () => {
     const socket = getSocket();
     if (!socket) return;
 
-    socket.on("conversation:new", (conversation) => {
-      setConversations((prev) => [...prev, conversation]);
+    socket.on("conversation:created", (conversation) => {
+      setPanel(true);
+      setSelectedConversation(conversation);
+
+      setConversations((prev) => {
+        const exists = prev.some(c => c._id === conversation._id);
+        if (exists) return prev;
+
+        return [conversation, ...prev];
+      });
     });
+
+    socket.on("conversation:new", (conversation) => {
+      setConversations((prev) => {
+        const exists = prev.some(c => c._id === conversation._id);
+        if (exists) return prev;
+
+        return [conversation, ...prev];
+      });
+    });
+
+    return () => {
+      socket.off("conversation:created");
+      socket.off("conversation:new");
+    };
   }, []);
+
 
   const handleConversationClick = (conversation: any) => {
     setPanel(true);
@@ -78,21 +101,12 @@ const LeftPanel = () => {
   };
 
   const handleSearchedConversationClick = async (conversation: any) => {
-    try {
-      const res = await api.post(`/api/conversations/private`, {
-        participantId: conversation._id
-      });
-      if (res.status === 201) {
-        const socket = getSocket();
-        if (socket) {
-          socket.emit("conversation:created", res.data.conversation);
-        }
-      }
-      setPanel(true);
-      setSelectedConversation(res.data.conversation);
-    } catch (err: any) {
-      console.log("Error while fetching the participant of chat: ", err);
-    }
+    const socket = getSocket();
+    if (!socket) return;
+
+    socket.emit("conversation:create", {
+      participantId: conversation._id
+    });
   }
 
   const handleLogout = () => {
