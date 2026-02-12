@@ -27,7 +27,6 @@ const LeftPanel = () => {
 
   const [searchedConversations, setSearchedConversations] = useState<any[]>([]);
 
-  // Load conversations from API
   const loadConversations = async () => {
     if (!user) return;
 
@@ -66,9 +65,11 @@ const LeftPanel = () => {
 
   useEffect(() => {
     const socket = getSocket();
-    if(!socket) return;
+    if (!socket) return;
 
-    
+    socket.on("conversation:new", (conversation) => {
+      setConversations((prev) => [...prev, conversation]);
+    });
   }, []);
 
   const handleConversationClick = (conversation: any) => {
@@ -81,6 +82,12 @@ const LeftPanel = () => {
       const res = await api.post(`/api/conversations/private`, {
         participantId: conversation._id
       });
+      if (res.status === 201) {
+        const socket = getSocket();
+        if (socket) {
+          socket.emit("conversation:created", res.data.conversation);
+        }
+      }
       setPanel(true);
       setSelectedConversation(res.data.conversation);
     } catch (err: any) {
@@ -179,9 +186,9 @@ const LeftPanel = () => {
         </div>
 
         {/* Search Box */}
-        <SearchInput searchedConversations={searchedConversations} setSearchedConversations={setSearchedConversations}/>
+        <SearchInput searchedConversations={searchedConversations} setSearchedConversations={setSearchedConversations} />
       </div>
-      
+
       {/* Searched Conversations */}
       <div className="overflow-auto flex flex-col max-h-[89%] gap-0 my-3 px-2">
         {searchedConversations.map((c: any) => {

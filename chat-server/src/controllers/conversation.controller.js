@@ -1,3 +1,4 @@
+import Conversation from "../models/Conversation.js";
 import Message from "../models/Message.js";
 import { joinRoom, leaveRoom } from "../utils/socketRooms.js";
 
@@ -88,4 +89,36 @@ export function conversationGroupPromoteAdmin(io, socket, data) {
         email: socket.user.email,
         promoteId
     });
+}
+
+export async function conversationCreate(io, socket, data) {
+    const { participantId } = data;
+  try {
+    const userId = socket.user.userId; 
+
+    const existingConversation = await Conversation.findOne({
+      participants: { $all: [userId, participantId] },
+      chatType: "private"
+    });
+
+    if (existingConversation) {
+      socket.emit("conversation:created", existingConversation);
+      return;
+    }
+
+    const newConversation = await Conversation.create({
+      participants: [userId, participantId],
+      chatType: "private",
+    });
+
+    socket.emit("conversation:created", newConversation);
+
+    io.to(participantId.toString()).emit(
+      "conversation:new",
+      newConversation
+    );
+
+  } catch (error) {
+    console.error("Conversation creation error:", error);
+  }
 }

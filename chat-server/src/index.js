@@ -45,6 +45,11 @@ const onlineUsers = new Map();
 
 io.on("connection", async (socket) => {
     console.log("User connected on socket server with ID: ", socket.id);
+    socket.on("join", (userId) => {
+      socket.join(userId);
+      console.log(`User ${userId} joined room`);
+    });
+    
     registerEvents(io, socket);
     socket.on("user:online", (userId) => {
         onlineUsers.set(userId, socket.id);

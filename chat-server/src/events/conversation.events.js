@@ -2,6 +2,9 @@ import { conversationGroupAddUser, conversationGroupPromoteAdmin, conversationGr
 
 
 export default function conversationEvents(io, socket) {
+    socket.on("conversation:create", (data) => {
+        conversationCreate(io, socket, data);
+    })
     socket.on("conversation:join", (data) => {
         conversationJoin(io, socket, data);
     });
