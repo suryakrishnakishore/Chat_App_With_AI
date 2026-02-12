@@ -16,7 +16,7 @@ export async function GET(req: Request, { params }: { params: { chatId: string }
   const unreadCount = await Message.countDocuments({
     chatId,
     senderId: { $ne: user.id },
-    seenBy: { $ne: user.id }
+    status: { $ne: "seen" },
   });
 
   return NextResponse.json({ unreadCount });

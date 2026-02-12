@@ -1,13 +1,21 @@
 import Message from "../models/Message.js";
 
 export function handleSendMessage(io, socket, data) {
-    const { chatId, message } = data;
+    const { chatId, participants, message } = data;
     io.to(chatId).emit("message:new", {
         chatId,
         message,
         senderId: socket.user.userId,
         timestamp: new Date().toISOString()
     });
+
+    participants.forEach(userId => {
+        io.to(userId.toString()).emit("message:notify", {
+            chatId,
+            message
+        });
+    });
+
 }
 
 export function handleDelivered(io, socket, data) {

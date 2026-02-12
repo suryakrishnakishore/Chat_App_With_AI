@@ -18,6 +18,7 @@ const MessageInput = () => {
     try {
       if (!selectedConversation) return;
       const chatId = selectedConversation._id;
+      const participants = selectedConversation.participants;
 
       for (const file of pendingAttachments) {
         const form = new FormData();
@@ -45,6 +46,7 @@ const MessageInput = () => {
 
         getSocket()?.emit("message:send", {
           chatId,
+          participants,
           message: savedMessage,
         });
       }
@@ -70,6 +72,7 @@ const MessageInput = () => {
       if (!socket) return;
       socket.emit("message:send", {
         chatId,
+        participants,
         message: savedMessage,
       });
 

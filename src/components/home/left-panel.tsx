@@ -26,27 +26,37 @@ const LeftPanel = () => {
   const [profileModal, setProfileModal] = useState(false);
 
   const [searchedConversations, setSearchedConversations] = useState<any[]>([]);
+  const selectedConversationRef = useRef<any>(null);
+
+  useEffect(() => {
+    selectedConversationRef.current = selectedConversation?._id || null;
+  }, [selectedConversation]);
 
   const loadConversations = async () => {
     if (!user) return;
 
-    try {
-      const res = await api.get(`/api/conversations/my`);
-      const sorted = res.data.conversations.sort(
-        (a: any, b: any) =>
-          new Date(b.updatedAt).getTime() -
-          new Date(a.updatedAt).getTime()
-      );
+    const res = await api.get(`/api/conversations/my`);
 
-      setConversations(
-        sorted.map((c: any) => ({
+    const sorted = res.data.conversations.sort(
+      (a: any, b: any) =>
+        new Date(b.updatedAt).getTime() -
+        new Date(a.updatedAt).getTime()
+    );
+
+    const conversationsWithUnread = await Promise.all(
+      sorted.map(async (c: any) => {
+        const unreadRes = await api.get(
+          `/api/conversations/unread/${c._id}`
+        );
+
+        return {
           ...c,
-          unreadCount: 0
-        }))
-      );
-    } catch (err) {
-      console.error("Error fetching conversations:", err);
-    }
+          unreadCount: unreadRes.data.unreadCount,
+        };
+      })
+    );
+
+    setConversations(conversationsWithUnread);
   };
 
   useEffect(() => {
@@ -57,7 +67,7 @@ const LeftPanel = () => {
     const socket = getSocket();
     if (!socket) return;
 
-    socket.on("message:new", ({ chatId, message }) => {
+    socket.on("message:notify", ({ chatId, message }) => {
       setConversations((prev) => {
         const existing = prev.find((c) => c._id === chatId);
         if (!existing) return prev;
@@ -71,7 +81,7 @@ const LeftPanel = () => {
           updatedAt: new Date().toISOString(),
           unreadCount: isCurrentlyOpen
             ? 0
-            : (existing.unreadCount || 0) + 1,
+            : (existing.unreadCount) + 1,
         };
 
         return [
@@ -83,7 +93,7 @@ const LeftPanel = () => {
 
 
     return () => {
-      socket.off("message:new");
+      socket.off("message:notify");
     };
   }, []);
 
