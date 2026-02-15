@@ -1,14 +1,23 @@
 "use client";
 import Image from 'next/image';
-import React from 'react';
+import React, { useEffect } from 'react';
 import DesktopTcon from "../../../public/desktop-hero.png";
 import { useConversationStore, usePanelStore } from '@/store/chat-store';
 import Conversation from './conversation';
+import { getSocket } from '@/lib/socket';
 
 const RightPanel = () => {
   const { panel } = usePanelStore();
   const { selectedConversation } = useConversationStore();
+  const socket = getSocket();
 
+  useEffect(() => {
+    if(!socket) return;
+    
+    socket.on("call:joined", (data) => {
+      console.log(`User joined call room ${data?.roomId}`);
+    });
+  }, [socket]);
   return (
     <div className="flex flex-col h-full w-full bg-[hsl(var(--gray-primary))] overflow-hidden">
       {panel ? (

@@ -5,6 +5,7 @@ import GroupMemebersDailog from './group-members-dailog';
 import Link from 'next/link';
 import { Video, X } from 'lucide-react';
 import { useConversationStore, usePanelStore } from '@/store/chat-store';
+import { getSocket } from '@/lib/socket';
 
 const ConversationHeader = ({ conversation }: { conversation: any }) => {
   const { setSelectedConversation } = useConversationStore();
@@ -16,6 +17,16 @@ const ConversationHeader = ({ conversation }: { conversation: any }) => {
   }, [setSelectedConversation, setPanel]);
 
   if (!conversation) return null;
+
+  function handleVideoCallClick() {
+    const socket = getSocket();
+    if (!socket) return;
+    console.log("Video call click.");
+    
+    socket.emit("call:join", {
+      roomId: conversation._id + "1818",
+    });
+  }
 
   return (
     <div className="sticky top-0 z-50 bg-[hsl(var(--gray-primary))] border-b border-gray-700 shadow-sm">
@@ -38,7 +49,9 @@ const ConversationHeader = ({ conversation }: { conversation: any }) => {
 
         <div className="flex items-center gap-6 text-gray-300">
           <Link href="/video-call">
-            <Video size={22} className="hover:text-[hsl(var(--green-primary))] transition-colors" />
+            <Video
+              onClick={handleVideoCallClick}
+              size={22} className="hover:text-[hsl(var(--green-primary))] transition-colors hover:cursor:pointer" />
           </Link>
           <X
             size={22}

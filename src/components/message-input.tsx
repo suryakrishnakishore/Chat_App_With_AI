@@ -144,7 +144,7 @@ const MessageInput = () => {
             onChange={(e) => setMsgText(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault(); // Prevent newline
+                e.preventDefault();
                 if (msgText.trim()) {
                   handleSend();
                 }

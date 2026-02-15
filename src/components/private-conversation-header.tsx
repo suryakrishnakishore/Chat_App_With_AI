@@ -7,6 +7,7 @@ import useStore from "@/store";
 import api from "@/lib/apiCalls";
 import { useEffect, useState } from "react";
 import { usePresenceStore } from "@/store/presence-store";
+import { getSocket } from "@/lib/socket";
 
 export default function PrivateConversationHeader({ conversation }: any) {
   const { setSelectedConversation } = useConversationStore();
@@ -38,6 +39,16 @@ export default function PrivateConversationHeader({ conversation }: any) {
     fetchUser();
   }, [conversation, me, isGroup]);
 
+  function handleVideoCallClick() {
+    const socket = getSocket();
+    if (!socket) return;
+    console.log("Video call click.");
+
+    socket.emit("call:join", {
+      roomId: conversation._id + "1818",
+    });
+  }
+
   const isOnline = onlineUsers[otherUserId];
   console.log("User online: ", isOnline);
   return (
@@ -65,7 +76,9 @@ export default function PrivateConversationHeader({ conversation }: any) {
         <p className="text-xs text-gray-500">@{participant?.username}</p>
       </div>
 
-      <Video className="ml-auto cursor-pointer hover:text-[hsl(var(--green-primary))]" />
+      <Video
+        onClick={handleVideoCallClick}
+        className="ml-auto cursor-pointer hover:text-[hsl(var(--green-primary))]" />
     </div>
   );
 }
