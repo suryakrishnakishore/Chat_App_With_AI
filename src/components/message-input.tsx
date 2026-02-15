@@ -7,6 +7,7 @@ import { useConversationStore } from "@/store/chat-store";
 import { useMessageStore } from "@/store/message-store";
 import { getSocket } from "@/lib/socket";
 import PendingAttachmentsPreview from "./pending-attachments-preview";
+import { TextArea } from "./ui/text-area";
 
 const MessageInput = () => {
   const [msgText, setMsgText] = useState("");
@@ -103,7 +104,7 @@ const MessageInput = () => {
 
   return (
     <div>
-        <PendingAttachmentsPreview
+      <PendingAttachmentsPreview
         files={pendingAttachments}
         removeFile={
           (i) => (
@@ -136,12 +137,19 @@ const MessageInput = () => {
             onChange={handleSelectFiles}
           />
 
-          <Input
-            type="text"
+          <TextArea
             placeholder="Type a message..."
             className="py-3 px-4 text-sm w-full rounded-full bg-[hsl(var(--gray-secondary))] text-[hsl(var(--foreground))] border-none focus:ring-2 focus:ring-[hsl(var(--green-primary))] transition-all"
             value={msgText}
             onChange={(e) => setMsgText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault(); // Prevent newline
+                if (msgText.trim()) {
+                  handleSend();
+                }
+              }
+            }}
           />
           <div className="flex items-center">
             <Button
