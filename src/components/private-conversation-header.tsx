@@ -8,12 +8,25 @@ import api from "@/lib/apiCalls";
 import { useEffect, useState } from "react";
 import { usePresenceStore } from "@/store/presence-store";
 import { getSocket } from "@/lib/socket";
+import { useCallStore } from "@/store/call-store";
+
 
 export default function PrivateConversationHeader({ conversation }: any) {
   const { setSelectedConversation } = useConversationStore();
   const { setPanel } = usePanelStore();
   const { user } = useStore((state) => state);
   const { onlineUsers } = usePresenceStore((state) => state);
+  const {
+      isOpen,
+      isIncoming,
+      callType,
+      remoteUser,
+      minimized,
+      openCall,
+      closeCall,
+      minimize,
+      maximize,
+    } = useCallStore();
 
   const me = user?._id;
   const isGroup = conversation?.chatType === "group";
@@ -47,6 +60,8 @@ export default function PrivateConversationHeader({ conversation }: any) {
     socket.emit("call:join", {
       roomId: conversation._id + "1818",
     });
+
+    openCall({});
   }
 
   const isOnline = onlineUsers[otherUserId];
@@ -60,8 +75,6 @@ export default function PrivateConversationHeader({ conversation }: any) {
           setPanel(false);
         }}
       />
-
-
 
       <Avatar className="w-10 h-10">
         <AvatarImage src={participant?.profileImage} />
