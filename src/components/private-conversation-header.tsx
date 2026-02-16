@@ -48,7 +48,7 @@ export default function PrivateConversationHeader({ conversation }: any) {
         console.log("Error fetching other user", err);
       }
     }
-
+    
     fetchUser();
   }, [conversation, me, isGroup]);
 
