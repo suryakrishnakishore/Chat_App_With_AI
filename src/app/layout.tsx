@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import AuthInit from "@/components/auth-init";
 import CallModal from "@/components/call-modal";
+import { PeerProvider } from "@/providers/peer-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,18 +31,20 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <AuthInit />
-          {children}
-        </ThemeProvider>
+        <PeerProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <AuthInit />
+            {children}
+          </ThemeProvider>
 
-        <CallModal
-        />
+          <CallModal />
+        </PeerProvider>
+
       </body>
     </html>
   );

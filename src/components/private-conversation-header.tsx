@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { usePresenceStore } from "@/store/presence-store";
 import { getSocket } from "@/lib/socket";
 import { useCallStore } from "@/store/call-store";
-
+import { usePeer } from "@/providers/peer-context";
 
 export default function PrivateConversationHeader({ conversation }: any) {
   const { setSelectedConversation } = useConversationStore();
@@ -27,6 +27,7 @@ export default function PrivateConversationHeader({ conversation }: any) {
       minimize,
       maximize,
     } = useCallStore();
+  const { peer, createOffer } = usePeer();
 
   const me = user?._id;
   const isGroup = conversation?.chatType === "group";
@@ -48,7 +49,7 @@ export default function PrivateConversationHeader({ conversation }: any) {
         console.log("Error fetching other user", err);
       }
     }
-    
+
     fetchUser();
   }, [conversation, me, isGroup]);
 
