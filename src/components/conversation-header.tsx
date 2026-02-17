@@ -23,9 +23,6 @@ const ConversationHeader = ({ conversation }: { conversation: any }) => {
     if (!socket) return;
     console.log("Video call click.");
     
-    socket.emit("call:join", {
-      roomId: conversation._id + "1818",
-    });
   }
 
   return (

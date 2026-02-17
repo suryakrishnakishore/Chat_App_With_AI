@@ -1,4 +1,4 @@
-import { handleCallAnswer, handleCallEnd, handleICECandidate, joinCallRoom } from "../controllers/calls.controller.js"
+import { handleCallAnswer, handleCallEnd, handleICECandidate, handleCallOffer } from "../controllers/calls.controller.js"
 
 export default function callEvents(io, socket) {
     socket.on("call:join", (data) => {

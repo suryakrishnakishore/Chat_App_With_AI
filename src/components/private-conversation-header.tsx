@@ -17,17 +17,17 @@ export default function PrivateConversationHeader({ conversation }: any) {
   const { user } = useStore((state) => state);
   const { onlineUsers } = usePresenceStore((state) => state);
   const {
-      isOpen,
-      isIncoming,
-      callType,
-      remoteUser,
-      minimized,
-      openCall,
-      closeCall,
-      minimize,
-      maximize,
-    } = useCallStore();
-  const { peer, createOffer } = usePeer();
+    isOpen,
+    isIncoming,
+    callType,
+    remoteUser,
+    minimized,
+    openCall,
+    closeCall,
+    minimize,
+    maximize,
+  } = useCallStore();
+  const { startCall } = usePeer();
 
   const me = user?._id;
   const isGroup = conversation?.chatType === "group";
@@ -54,15 +54,14 @@ export default function PrivateConversationHeader({ conversation }: any) {
   }, [conversation, me, isGroup]);
 
   function handleVideoCallClick() {
-    const socket = getSocket();
-    if (!socket) return;
     console.log("Video call click.");
 
-    socket.emit("call:join", {
-      roomId: conversation._id + "1818",
-    });
+    const otherUserId =
+      conversation.participants?.find(
+        (id: string) => id !== me
+      );
 
-    openCall({});
+    startCall(otherUserId, "video");
   }
 
   const isOnline = onlineUsers[otherUserId];

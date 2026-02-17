@@ -125,7 +125,6 @@ export default function Home() {
     registerPresenceEvents();
     const socket = getSocket();
     if (socket) {
-      socket.emit("join", user._id)
       socket.emit("user:online", user._id);
       
     }

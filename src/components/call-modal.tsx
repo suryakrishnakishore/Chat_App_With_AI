@@ -12,6 +12,7 @@ import {
   Maximize2,
 } from "lucide-react";
 import { useCallStore } from "@/store/call-store";
+import { usePeer } from "@/providers/peer-context";
 
 export default function CallModal() {
   const {
@@ -24,6 +25,8 @@ export default function CallModal() {
     minimize,
     maximize,
   } = useCallStore();
+
+  const { acceptCall, localStream, remoteStream, endCall } = usePeer();
 
   const [muted, setMuted] = useState(false);
   const [cameraOff, setCameraOff] = useState(false);
@@ -47,11 +50,10 @@ export default function CallModal() {
 
   return (
     <div
-      className={`fixed z-50 bg-black text-white shadow-2xl transition-all duration-300 ${
-        minimized
-          ? "bottom-6 right-6 w-72 h-44 rounded-xl overflow-hidden"
-          : "inset-0 flex items-center justify-center"
-      }`}
+      className={`fixed z-50 bg-black text-white shadow-2xl transition-all duration-300 ${minimized
+        ? "bottom-6 right-6 w-72 h-44 rounded-xl overflow-hidden"
+        : "inset-0 flex items-center justify-center"
+        }`}
     >
       <div className="relative w-full h-full flex items-center justify-center">
 
@@ -83,13 +85,14 @@ export default function CallModal() {
 
             <div className="flex gap-8 mt-4">
               <button
-                onClick={closeCall}
+                onClick={endCall}
                 className="bg-red-600 p-5 rounded-full hover:bg-red-700 transition"
               >
                 <PhoneOff />
               </button>
 
               <button
+                onClick={acceptCall}
                 className="bg-green-600 p-5 rounded-full hover:bg-green-700 transition"
               >
                 <Phone />
@@ -105,9 +108,17 @@ export default function CallModal() {
           <>
             {/* Remote Video / Background */}
             {callType === "video" ? (
-              <div className="absolute inset-0 bg-gray-900 flex items-center justify-center text-gray-400 text-xl">
-                Remote Video
-              </div>
+              <video
+                autoPlay
+                playsInline
+                ref={(video) => {
+                  if (video && remoteStream) {
+                    video.srcObject = remoteStream;
+                  }
+                }}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+
             ) : (
               <div className="flex flex-col items-center gap-6">
                 <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-gray-700">
@@ -129,9 +140,18 @@ export default function CallModal() {
 
             {/* Local Preview (Video only) */}
             {callType === "video" && !minimized && (
-              <div className="absolute bottom-24 right-6 w-36 h-24 bg-gray-800 rounded-lg flex items-center justify-center text-xs text-gray-400 border border-gray-700">
-                Your Camera
-              </div>
+              <video
+                autoPlay
+                muted
+                playsInline
+                ref={(video) => {
+                  if (video && localStream) {
+                    video.srcObject = localStream;
+                  }
+                }}
+                className="absolute bottom-24 right-6 w-36 h-24 rounded-lg object-cover border"
+              />
+
             )}
 
             {/* Top Controls */}

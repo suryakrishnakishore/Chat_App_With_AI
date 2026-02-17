@@ -1,3 +1,5 @@
+"use client"
+
 import { getSocket } from "@/lib/socket";
 import { useCallStore } from "@/store/call-store";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -13,7 +15,13 @@ interface PeerContextType {
 
 const PeerContext = React.createContext<PeerContextType | null>(null);
 
-export const usePeer = () => React.useContext(PeerContext);
+export const usePeer = () => {
+    const context = React.useContext(PeerContext);
+    if (!context) {
+        throw new Error("usePeer must be used within PeerProvider");
+    }
+    return context;
+};
 
 export const PeerProvider = (props: any) => {
     const { openCall, closeCall } = useCallStore();
@@ -25,7 +33,7 @@ export const PeerProvider = (props: any) => {
     const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
 
     const incomingOfferRef = useRef<any>(null)
-    const socket = getSocket();
+
 
     const createPeer = () => {
         const peer = new RTCPeerConnection({
@@ -38,6 +46,8 @@ export const PeerProvider = (props: any) => {
                 }
             ]
         });
+        console.log("Peer created: ", peer);
+
 
         peer.ontrack = (event) => {
             setRemoteStream(event.streams[0]);
@@ -45,6 +55,7 @@ export const PeerProvider = (props: any) => {
 
         peer.onicecandidate = (event) => {
             if (event.candidate) {
+                const socket = getSocket();
                 socket?.emit("call:ice-candidate", {
                     to: remoteUserRef.current,
                     candidate: event.candidate
@@ -81,8 +92,12 @@ export const PeerProvider = (props: any) => {
         const offer = await peer.createOffer();
         await peer.setLocalDescription(offer);
 
+        console.log("Offer created: ", offer);
+        const socket = getSocket();
+        console.log("Socket from start call", socket);
+
         socket?.emit("call:offer", {
-            to: remoteId,
+            to: remoteId.toString(),
             offer,
             callType,
         });
@@ -111,9 +126,9 @@ export const PeerProvider = (props: any) => {
 
         const answer = await peer.createAnswer();
         await peer.setLocalDescription(answer);
-
+        const socket = getSocket();
         socket?.emit("call:answer", {
-            to: remoteUserRef.current,
+            to: remoteUserRef.current?.toString(),
             answer,
         });
 
@@ -123,9 +138,10 @@ export const PeerProvider = (props: any) => {
     };
 
     const endCall = () => {
-        if(remoteUserRef.current) {
+        if (remoteUserRef.current) {
+            const socket = getSocket();
             socket?.emit("call:end", {
-                to: remoteUserRef.current
+                to: remoteUserRef.current?.toString()
             })
         }
         localStreamRef.current?.getTracks().forEach((t) => t.stop());
@@ -141,43 +157,75 @@ export const PeerProvider = (props: any) => {
     };
 
     useEffect(() => {
-        if (!socket) return;
+        const attachListeners = () => {
+            const socket = getSocket();
 
-        socket.on("call:incoming", async ({ from, offer, callType }) => {
-            remoteUserRef.current = from;
+            if (!socket) {
+                console.log("Socket not ready yet in PeerProvider");
+                return false;
+            }
 
-            openCall({
-                isIncoming: true,
-                callType,
-                remoteUser: { _id: from },
+            console.log("Socket ready. Attaching call listeners.");
+
+            socket.on("call:incoming", ({ from, offer, callType }) => {
+                console.log("Incoming call from:", from);
+
+                remoteUserRef.current = from;
+
+                openCall({
+                    isIncoming: true,
+                    callType,
+                    remoteUser: { _id: from },
+                });
+
+                incomingOfferRef.current = offer;
             });
 
-            incomingOfferRef.current = offer;
-        });
+            socket.on("call:answer", async ({ answer }) => {
+                console.log("Received answer");
+                await peerRef.current?.setRemoteDescription(
+                    new RTCSessionDescription(answer)
+                );
+            });
 
-        socket.on("call:answer", async ({ answer }) => {
-            await peerRef.current?.setRemoteDescription(
-                new RTCSessionDescription(answer)
-            );
-        });
+            socket.on("call:ice-candidate", async ({ candidate }) => {
+                console.log("Received ICE candidate");
+                await peerRef.current?.addIceCandidate(
+                    new RTCIceCandidate(candidate)
+                );
+            });
 
-        socket.on("call:ice-candidate", async ({ candidate }) => {
-            await peerRef.current?.addIceCandidate(
-                new RTCIceCandidate(candidate)
-            );
-        });
+            socket.on("call:end", () => {
+                console.log("Call ended remotely");
+                endCall();
+            });
 
-        socket.on("call:end", () => {
-            endCall();
-        });
+            return true;
+        };
+
+        // Try attaching immediately
+        if (attachListeners()) return;
+
+        // If socket not ready, wait until it connects
+        const interval = setInterval(() => {
+            if (attachListeners()) {
+                clearInterval(interval);
+            }
+        }, 200);
 
         return () => {
+            clearInterval(interval);
+
+            const socket = getSocket();
+            if (!socket) return;
+
             socket.off("call:incoming");
             socket.off("call:answer");
             socket.off("call:ice-candidate");
             socket.off("call:end");
         };
     }, []);
+
 
     return (
         <PeerContext.Provider value={{ localStream, remoteStream, incomingOfferRef, startCall, acceptCall, endCall }}>

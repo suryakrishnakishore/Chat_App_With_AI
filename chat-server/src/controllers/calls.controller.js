@@ -3,7 +3,7 @@ const emailToSocketMap = new Map();
 export function joinCallRoom(io, socket, data) {
     const { roomId } = data;
     console.log("Request to join call on roomId ", roomId);
-    
+
     emailToSocketMap.set(socket.user.email, socket.id);
     socket.join(roomId);
     socket.emit("call:joined", { roomId });
@@ -15,8 +15,12 @@ export function joinCallRoom(io, socket, data) {
 }
 
 export function handleCallOffer(io, socket, { to, callType, offer }) {
+    console.log(`Call offer to ${to}`);
+    console.log("Call offer user ", socket.user.userId);
+    console.log("Rooms:", io.sockets.adapter.rooms);
+    console.log("Room for target:", io.sockets.adapter.rooms.get(to.toString()));
     io.to(to).emit("call:incoming", {
-        from: socket.user.userId,
+        from: socket.user.userId?.toString(),
         callType,
         offer
     });

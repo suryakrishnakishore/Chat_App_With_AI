@@ -26,6 +26,8 @@ const io = new Server(server, {
 io.use((socket, next) => {
     const token = socket.handshake.auth.token;
     if (!token) {
+        console.log("No token match in the socket server");
+
         return next(new Error("Authentication error: Token not provided."));
     }
 
@@ -45,11 +47,9 @@ const onlineUsers = new Map();
 
 io.on("connection", async (socket) => {
     console.log("User connected on socket server with ID: ", socket.id);
-    socket.on("join", (userId) => {
-      socket.join(userId);
-      console.log(`User ${userId} joined room`);
-    });
-    
+    socket.join(socket.user.userId.toString());
+    console.log(`User ${socket.user.userId.toString()} joined room`);
+
     registerEvents(io, socket);
     socket.on("user:online", (userId) => {
         onlineUsers.set(userId, socket.id);
@@ -65,7 +65,7 @@ io.on("connection", async (socket) => {
 
     try {
         console.log("Delivered user id: ", socket.user.userId);
-        
+
         const undelivered = await Message.find({
             senderId: { $ne: new mongoose.Types.ObjectId(socket.user.userId) },
             status: "sent"
