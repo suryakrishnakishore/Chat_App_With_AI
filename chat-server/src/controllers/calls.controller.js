@@ -15,7 +15,7 @@ export function joinCallRoom(io, socket, data) {
 }
 
 export function handleCallOffer(io, socket, { to, callType, offer }) {
-    io.to(to).emit("incoming:call", {
+    io.to(to).emit("call:incoming", {
         from: socket.user.userId,
         callType,
         offer
